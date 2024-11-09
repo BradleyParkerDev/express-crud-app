@@ -4,7 +4,7 @@ This is a TypeScript-based Express server that uses PostgreSQL as its database. 
 
 ## Overview
 
-This app is designed to be scalable and flexible, offering full CRUD capabilities for user data. It includes middleware for handling cookies, CORS, logging, and error management. Its PostgreSQL database is integrated using Drizzle ORM, which enables seamless database migrations and schema management. In any event, it will provided a solid foundation for building RESTful APIs with session-based authentication.
+This app is designed to be scalable and flexible, offering full CRUD capabilities for user data. It includes middleware for handling cookies, CORS, logging, and error management. Its PostgreSQL database is integrated using Drizzle ORM, which enables seamless database migrations and schema management. In any event, it will provided a solid foundation for building RESTful APIs with user authentication/authorization.
 
 ## Features
 
@@ -21,7 +21,7 @@ This app is designed to be scalable and flexible, offering full CRUD capabilitie
 ## Project Structure
 
 ```
-postgresql-express-crud-app/
+express-postgresql-crud-app/
 ├── dist/                        # Compiled TypeScript files
 ├── node_modules/                # Project dependencies
 ├── src/                         # Source code directory
@@ -59,8 +59,8 @@ postgresql-express-crud-app/
 1. **Clone the repository:**
 
     ```sh
-    git clone https://github.com/BradleyParkerDev/postgresql-express-crud-app.git
-    cd postgresql-express-crud-app
+    git clone https://github.com/BradleyParkerDev/express-postgresql-crud-app.git
+    cd express-postgresql-crud-app
     ```
 
 2. **Rename `example.env` to `.env` and add your desired environment variables:**
