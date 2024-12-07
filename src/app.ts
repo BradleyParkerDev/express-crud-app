@@ -4,18 +4,24 @@ import logger from 'morgan';
 import cors from 'cors'
 import createError from 'http-errors';
 import indexRouter from './routes/index';
+import authRouter from './routes/auth';
 import usersRouter from './routes/users';
+import { auth } from './lib/auth';
 
+// App Creation
 const app = express();
 
+// Middleware
 app.use(cors());
 app.use(logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
+app.use(auth.handleSessionCookies) // Authorization Middleware
 
-// Define routes
+// Routes
 app.use('/', indexRouter);
+app.use('/api/auth', authRouter)
 app.use('/api/users', usersRouter);
 
 // Catch 404 and forward to error handler

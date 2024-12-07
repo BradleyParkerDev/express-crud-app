@@ -5,8 +5,10 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express"));
 const router = express_1.default.Router();
-/* GET home page. */
-router.get('/', (req, res) => {
-    res.send('Hello, from users api route!');
-});
+const controllers_1 = require("../controllers");
+// User API
+router.post('/register-user', controllers_1.usersController.registerUser);
+router.get('/get-user', controllers_1.usersController.getUser);
+router.put('/update-user', controllers_1.usersController.updateUser);
+router.delete('/delete-user', controllers_1.usersController.deleteUser);
 exports.default = router;

@@ -8,7 +8,7 @@
 		"strict": true,
 		"skipLibCheck": true,
 		"resolveJsonModule": true,
-		"typeRoots": ["./node_modules/@types", "./src/types"],
+		"typeRoots": ["./node_modules/@types", "src/lib/types"],
 		"noUnusedParameters": false
 	},
 	"include": ["src/**/*.ts", "src/bin/www"],

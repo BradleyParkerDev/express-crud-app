@@ -1,8 +1,7 @@
 //////////////////////////////////////////////////////////////////
 // Neon and Local Migrations
 //////////////////////////////////////////////////////////////////
-
-import { migrate as neonMigrate } from 'drizzle-orm/neon-serverless/migrator'; // Pooled Connection
+import { migrate as neonMigrate } from 'drizzle-orm/neon-serverless/migrator'; 
 import { migrate as localMigrate } from 'drizzle-orm/node-postgres/migrator';
 
 import { localDb } from './localDb';

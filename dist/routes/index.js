@@ -7,6 +7,6 @@ const express_1 = __importDefault(require("express"));
 const router = express_1.default.Router();
 /* GET home page. */
 router.get('/', (req, res) => {
-    res.send('Hello, World! This is an express server written in TypeScript!');
+    res.send('Hello, World!');
 });
 exports.default = router;

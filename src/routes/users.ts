@@ -1,8 +1,11 @@
-import express, { Request, Response } from 'express';
+import express from 'express';
 const router = express.Router();
+import { usersController } from '../controllers';
 
-/* GET home page. */
-router.get('/', (req: Request, res: Response) => {
-    res.send('Hello, from users api route!');
-});
+// User API
+router.post('/register-user', usersController.registerUser) 
+router.get('/get-user',usersController.getUser) 
+router.put('/update-user',usersController.updateUser) 
+router.delete('/delete-user',usersController.deleteUser) 
+
 export default router;
