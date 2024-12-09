@@ -21,6 +21,7 @@ const neonDb_1 = require("../../../database/neonDb");
 const useNeon = process.env.USE_NEON === 'true';
 console.log('Using NeonDB:', useNeon);
 const db = useNeon ? neonDb_1.neonDb : localDb_1.localDb;
+// Find a way to change parameter to type string, for object properties that are strings
 const deleteUserSession = (sessionId) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const deletionResult = yield db.delete(UserSessions_1.default)

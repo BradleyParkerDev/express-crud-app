@@ -11,6 +11,7 @@ const useNeon = process.env.USE_NEON === 'true';
 console.log('Using NeonDB:', useNeon);
 const db = useNeon ? neonDb : localDb;
 
+// Find a way to change parameter to type string, for object properties that are strings
 const deleteUserSession = async (sessionId: any): Promise<{ success: boolean; message: string }> => {
     try {
         const deletionResult = await db.delete(UserSession)

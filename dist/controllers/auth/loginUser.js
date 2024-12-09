@@ -45,21 +45,6 @@ const loginUser = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     }
     // Create session tokens and cookies
     if (passwordValid) {
-        // // Handle guest session cleanup
-        // if (req.cookies['guestToken']) {
-        //     const guestToken = req.cookies['guestToken'];
-        //     try {
-        //         const decodedGuestToken = await auth.verifyToken(guestToken);
-        //         res.clearCookie("guestToken");
-        //         console.log(`decodedGuestToken: ${decodedGuestToken}`)
-        //         console.log('decodedGuestToken:', decodedGuestToken);
-        //         const sessionId: string = decodedGuestToken.sessionId;
-        //         const deleteSessionMessage = await auth.deleteUserSession(sessionId);
-        //         console.log('Guest session deletion:', deleteSessionMessage.message);
-        //     } catch (error) {
-        //         console.error('Error deleting guest session:', error);
-        //     }
-        // }
         // Handle guest session cleanup
         if (req.cookies['guestToken']) {
             const guestToken = req.cookies['guestToken'];

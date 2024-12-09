@@ -9,78 +9,41 @@ interface UserData {
     expirationTime: Date; // Expiration time as a Date object
 }
 
-export const generateToken = async (userData: UserData, type: string): Promise<string> => {
+export const generateToken = async (userData: UserData, type: 'access' | 'refresh' | 'guest'): Promise<string> => {
+    // Secret key for signing the token
+    const jwtSecretKey = new TextEncoder().encode(process.env.JWT_SECRET_KEY!);
+
+    // Calculate expiration time: 2 minutes for access tokens
+    const accessTokenExp = Math.floor(Date.now() / 1000) + 2 * 60; // 2 minutes
+    const userSessionExp = Math.floor(userData.expirationTime.getTime() / 1000); // Session expiration in seconds
+
     if (type === 'access') {
-        // Calculate expiration time: 2 minutes in seconds
-        const accessTokenExp = Math.floor(Date.now() / 1000) + 2 * 60; // 2 minutes
-
-        // Secret key for signing the token
-        const accessTokenSecretKey = new TextEncoder().encode(process.env.JWT_SECRET_KEY!);
-
-        // Prepare payload
+        // Prepare payload for access token
         const accessTokenPayload = {
             userId: userData.userId ?? undefined, // Ensure null becomes undefined if necessary
             type: 'access',
         };
 
-        // Generate Access Token with 2 minutes expiration
-        const accessToken = await new SignJWT(accessTokenPayload)
+        // Generate Access Token
+        return await new SignJWT(accessTokenPayload)
             .setProtectedHeader({ alg: 'HS256' })
             .setIssuedAt()
             .setExpirationTime(accessTokenExp)
-            .sign(accessTokenSecretKey);
-
-        return accessToken; // Return the generated token
+            .sign(jwtSecretKey);
     }
 
-    if (type === 'refresh') {
-        // Convert expirationTime to seconds since the Unix epoch
-        const refreshTokenExp = Math.floor(userData.expirationTime.getTime() / 1000);
+    // Prepare payload for refresh or guest tokens
+    const tokenPayload = {
+        sessionId: userData.sessionId,
+        type: type, // 'refresh' or 'guest'
+    };
 
-        // Secret key for signing the token
-        const refreshTokenSecretKey = new TextEncoder().encode(process.env.JWT_SECRET_KEY!);
-
-        // Prepare payload
-        const refreshTokenPayload = {
-            sessionId: userData.sessionId,
-            type: 'refresh',
-        };
-
-        // Generate Refresh Token
-        const refreshToken = await new SignJWT(refreshTokenPayload)
-            .setProtectedHeader({ alg: 'HS256' })
-            .setIssuedAt()
-            .setExpirationTime(refreshTokenExp)
-            .sign(refreshTokenSecretKey);
-
-        return refreshToken; // Return the generated token
-    }
-
-    if (type === 'guest') {
-        // Convert expirationTime to seconds since the Unix epoch
-        const guestTokenExp = Math.floor(userData.expirationTime.getTime() / 1000);
-
-        // Secret key for signing the token
-        const guestTokenSecretKey = new TextEncoder().encode(process.env.JWT_SECRET_KEY!);
-
-        // Prepare payload
-        const guestTokenPayload = {
-            sessionId: userData.sessionId,
-            type: 'guest',
-        };
-
-        // Generate Guest Token
-        const guestToken = await new SignJWT(guestTokenPayload)
-            .setProtectedHeader({ alg: 'HS256' })
-            .setIssuedAt()
-            .setExpirationTime(guestTokenExp)
-            .sign(guestTokenSecretKey);
-
-        return guestToken; // Return the generated token
-    }
-
-    // Handle unsupported token types
-    throw new Error(`Unsupported token type: ${type}`);
+    // Generate Refresh or Guest Token
+    return await new SignJWT(tokenPayload)
+        .setProtectedHeader({ alg: 'HS256' })
+        .setIssuedAt()
+        .setExpirationTime(userSessionExp)
+        .sign(jwtSecretKey);
 };
 
 export default generateToken;

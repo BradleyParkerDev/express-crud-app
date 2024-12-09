@@ -5,8 +5,6 @@ import createUserSession from "../session/createUserSession";
 
 import verifyToken from "../token/verifyToken";
 import rotateRefreshToken from "../token/rotateRefreshToken";
-import setAuthCookies from "../cookies/setAuthCookies";
-import setGuestCookie from "../cookies/setGuestCookie";
 import { auth } from "..";
 
 const handleSessionCookies = async (req: Request, res: Response, next: NextFunction): Promise<void> => {

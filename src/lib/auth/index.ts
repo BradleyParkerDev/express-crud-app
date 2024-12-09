@@ -1,7 +1,3 @@
-// cookies
-import setAuthCookies from "./cookies/setAuthCookies";
-import setGuestCookie from "./cookies/setGuestCookie";
-
 // hashing
 import generatePasswordHash from "./hashing/generatePasswordHash";
 
@@ -21,16 +17,7 @@ import verifyToken from "./token/verifyToken";
 import validatePassword from "./validation/validatePassword";
 
 
-
 export const auth = {
-    // cookies
-    setAuthCookies,
-    setGuestCookie,
-
-    // token
-    generateToken,
-    rotateRefreshToken,
-    verifyToken,
 
     // hashing
     generatePasswordHash,
@@ -38,10 +25,16 @@ export const auth = {
     // middleware
     handleSessionCookies,
 
-    // validation
-    validatePassword,
-
     // session
     createUserSession,
-    deleteUserSession
+    deleteUserSession,
+
+    // token
+    generateToken,
+    rotateRefreshToken,
+    verifyToken,    
+
+    // validation
+    validatePassword
+
 };
