@@ -52,7 +52,8 @@ const loginUser = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
                 const decodedGuestToken = yield auth_1.auth.verifyToken(guestToken);
                 if (decodedGuestToken === null || decodedGuestToken === void 0 ? void 0 : decodedGuestToken.sessionId) {
                     res.clearCookie("guestToken");
-                    const deleteSessionMessage = yield auth_1.auth.deleteUserSession(decodedGuestToken.sessionId);
+                    const sessionId = String(decodedGuestToken === null || decodedGuestToken === void 0 ? void 0 : decodedGuestToken.sessionId);
+                    const deleteSessionMessage = yield auth_1.auth.deleteUserSession(sessionId);
                     console.log('Guest session deletion:', deleteSessionMessage.message);
                 }
                 else {

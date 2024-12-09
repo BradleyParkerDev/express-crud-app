@@ -54,9 +54,9 @@ const handleSessionCookies = (req, res, next) => __awaiter(void 0, void 0, void 
                 // create guest token
                 const guestToken = yield __1.auth.generateToken(guestUserSession, "guest");
                 console.log(`guestToken: \n${guestToken}`);
-                // set cookies
                 // Calculate maxAge for guestToken
                 const guestTokenMaxAge = guestUserSession.expirationTime.getTime() - Date.now();
+                // set cookies
                 res.cookie("guestToken", guestToken, {
                     httpOnly: true,
                     secure: process.env.NODE_ENV === "production",

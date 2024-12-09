@@ -3,6 +3,7 @@ import { eq } from 'drizzle-orm';
 
 import { localDb } from "../../../database/localDb";
 import { neonDb } from "../../../database/neonDb";
+import { JWTPayload } from "jose";
 // Assume environment variables are loaded in the main entry point
 
 // Explicit boolean conversion
@@ -12,7 +13,7 @@ console.log('Using NeonDB:', useNeon);
 const db = useNeon ? neonDb : localDb;
 
 // Find a way to change parameter to type string, for object properties that are strings
-const deleteUserSession = async (sessionId: any): Promise<{ success: boolean; message: string }> => {
+const deleteUserSession = async (sessionId: string ): Promise<{ success: boolean; message: string }> => {
     try {
         const deletionResult = await db.delete(UserSession)
             .where(eq(UserSession.sessionId, sessionId))

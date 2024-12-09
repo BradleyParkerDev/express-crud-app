@@ -55,12 +55,13 @@ const handleSessionCookies = async (req: Request, res: Response, next: NextFunct
 				const guestUserSession = await auth.createUserSession()
 
 				// create guest token
-
 				const guestToken = await auth.generateToken(guestUserSession, "guest")
 				console.log(`guestToken: \n${guestToken}`);
-				// set cookies
+				
 				// Calculate maxAge for guestToken
-				const guestTokenMaxAge = guestUserSession.expirationTime.getTime() - Date.now();
+				const guestTokenMaxAge = guestUserSession.expirationTime.getTime() - Date.now();	
+
+				// set cookies
 				res.cookie("guestToken", guestToken, {
 					httpOnly: true,
 					secure: process.env.NODE_ENV === "production",

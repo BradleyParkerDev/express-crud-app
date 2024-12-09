@@ -53,8 +53,8 @@ const loginUser = async (req: Request, res: Response) => {
 
                 if (decodedGuestToken?.sessionId) {
                     res.clearCookie("guestToken");
-
-                    const deleteSessionMessage = await auth.deleteUserSession(decodedGuestToken.sessionId);
+                    const sessionId = String(decodedGuestToken?.sessionId);
+                    const deleteSessionMessage = await auth.deleteUserSession(sessionId);
                     console.log('Guest session deletion:', deleteSessionMessage.message);
                 } else {
                     console.error("Invalid or null decoded guest token.");
