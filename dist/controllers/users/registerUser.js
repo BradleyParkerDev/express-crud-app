@@ -36,7 +36,7 @@ const registerUser = (req, res) => __awaiter(void 0, void 0, void 0, function* (
             password: passwordHash
         };
         yield db.insert(Users_1.default).values(newUserData);
-        res.status(200).json({ success: true });
+        res.status(200).json({ success: true, message: "User successfully registered!" });
     }
     catch (error) {
         console.error("Error registering new user:", error);

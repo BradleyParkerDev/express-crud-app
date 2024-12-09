@@ -2,7 +2,6 @@ import UserSession from "../../../database/schemas/UserSessions";
 import { localDb } from "../../../database/localDb";
 import { neonDb } from "../../../database/neonDb";
 import dotenv from 'dotenv';
-import { string } from "zod";
 
 // Load environment variables
 dotenv.config();

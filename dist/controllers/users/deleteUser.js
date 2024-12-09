@@ -20,14 +20,14 @@ const dotenv_1 = __importDefault(require("dotenv"));
 // Load environment variables
 dotenv_1.default.config();
 const deleteUser = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    var _a, _b;
+    var _a;
     // Explicit boolean conversion with fallback to false
     const useNeon = process.env.USE_NEON === 'true' || false;
     // Dynamically assign the database 
     const db = useNeon ? neonDb_1.neonDb : localDb_1.localDb;
     try {
         // Ensure req.decoded is set by the authorizeUser middleware
-        const id = (_b = (_a = req.decoded) === null || _a === void 0 ? void 0 : _a.userData) === null || _b === void 0 ? void 0 : _b.userId;
+        const id = (_a = req.decoded) === null || _a === void 0 ? void 0 : _a.userId;
         if (!id) {
             return res.status(400).json({ message: "User ID is missing from request" });
         }

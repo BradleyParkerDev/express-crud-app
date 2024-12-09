@@ -19,8 +19,7 @@ const getUser = async (req: Request, res: Response) => {
     try {
 
         // Ensure req.decoded is set by the authorizeUser middleware
-        const id = req.decoded?.userData?.userId;
-        res.cookie('token', 'your-jwt-token', { httpOnly: true, maxAge: 900000 });
+        const id = req.decoded?.userId;
         if (!id) {
             return res.status(400).json({ message: "User ID is missing from request" });
         }

@@ -19,7 +19,7 @@ const deleteUser = async (req: Request, res: Response) => {
 
         
         // Ensure req.decoded is set by the authorizeUser middleware
-        const id = req.decoded?.userData?.userId;
+        const id = req.decoded?.userId;
 
         if (!id) {
             return res.status(400).json({ message: "User ID is missing from request" });

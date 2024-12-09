@@ -8,7 +8,34 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
-const deleteUserSession = () => __awaiter(void 0, void 0, void 0, function* () {
+const UserSessions_1 = __importDefault(require("../../../database/schemas/UserSessions"));
+const drizzle_orm_1 = require("drizzle-orm");
+const localDb_1 = require("../../../database/localDb");
+const neonDb_1 = require("../../../database/neonDb");
+// Assume environment variables are loaded in the main entry point
+// Explicit boolean conversion
+const useNeon = process.env.USE_NEON === 'true';
+console.log('Using NeonDB:', useNeon);
+const db = useNeon ? neonDb_1.neonDb : localDb_1.localDb;
+const deleteUserSession = (sessionId) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const deletionResult = yield db.delete(UserSessions_1.default)
+            .where((0, drizzle_orm_1.eq)(UserSessions_1.default.sessionId, sessionId))
+            .returning();
+        if (deletionResult.length > 0) {
+            return { success: true, message: "User session successfully deleted!" };
+        }
+        else {
+            return { success: false, message: "User session could not be found or was already deleted." };
+        }
+    }
+    catch (error) {
+        console.error('Error deleting user session:', error);
+        return { success: false, message: "An error occurred while deleting the user session." };
+    }
 });
 exports.default = deleteUserSession;

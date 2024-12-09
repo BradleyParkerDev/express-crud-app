@@ -45,14 +45,42 @@ const loginUser = async (req: Request, res: Response) => {
     // Create session tokens and cookies
     if(passwordValid){
 
-        // Remove guest cookie and delete session if exists
-        if (req.cookies?.guestSessionId) {
-            // Remove guest cookie
-            res.clearCookie("guestToken");
-            // Delete guest session            
-            // await auth.deleteUserSession(req.cookies.guestSessionId);
-        }
+        // // Handle guest session cleanup
+        // if (req.cookies['guestToken']) {
+        //     const guestToken = req.cookies['guestToken'];
 
+        //     try {
+        //         const decodedGuestToken = await auth.verifyToken(guestToken);
+        //         res.clearCookie("guestToken");
+        //         console.log(`decodedGuestToken: ${decodedGuestToken}`)
+        //         console.log('decodedGuestToken:', decodedGuestToken);
+        //         const sessionId: string = decodedGuestToken.sessionId;
+        //         const deleteSessionMessage = await auth.deleteUserSession(sessionId);
+        //         console.log('Guest session deletion:', deleteSessionMessage.message);
+        //     } catch (error) {
+        //         console.error('Error deleting guest session:', error);
+        //     }
+        // }
+
+        // Handle guest session cleanup
+        if (req.cookies['guestToken']) {
+            const guestToken = req.cookies['guestToken'];
+
+            try {
+                const decodedGuestToken = await auth.verifyToken(guestToken);
+
+                if (decodedGuestToken?.sessionId) {
+                    res.clearCookie("guestToken");
+
+                    const deleteSessionMessage = await auth.deleteUserSession(decodedGuestToken.sessionId);
+                    console.log('Guest session deletion:', deleteSessionMessage.message);
+                } else {
+                    console.error("Invalid or null decoded guest token.");
+                }
+            } catch (error) {
+                console.error('Error deleting guest session:', error);
+            }
+        }
 
         // Create authenticated user session
         const authenticatedUserSession = await auth.createUserSession(foundUser.userId);

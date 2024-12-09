@@ -21,7 +21,6 @@ const dotenv_1 = __importDefault(require("dotenv"));
 // Load environment variables
 dotenv_1.default.config();
 const loginUser = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    var _a;
     // Explicit boolean conversion with fallback to false
     const useNeon = process.env.USE_NEON === 'true' || false;
     // Dynamically assign the database 
@@ -46,12 +45,38 @@ const loginUser = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     }
     // Create session tokens and cookies
     if (passwordValid) {
-        // Remove guest cookie and delete session if exists
-        if ((_a = req.cookies) === null || _a === void 0 ? void 0 : _a.guestSessionId) {
-            // Remove guest cookie
-            res.clearCookie("guestToken");
-            // Delete guest session            
-            // await auth.deleteUserSession(req.cookies.guestSessionId);
+        // // Handle guest session cleanup
+        // if (req.cookies['guestToken']) {
+        //     const guestToken = req.cookies['guestToken'];
+        //     try {
+        //         const decodedGuestToken = await auth.verifyToken(guestToken);
+        //         res.clearCookie("guestToken");
+        //         console.log(`decodedGuestToken: ${decodedGuestToken}`)
+        //         console.log('decodedGuestToken:', decodedGuestToken);
+        //         const sessionId: string = decodedGuestToken.sessionId;
+        //         const deleteSessionMessage = await auth.deleteUserSession(sessionId);
+        //         console.log('Guest session deletion:', deleteSessionMessage.message);
+        //     } catch (error) {
+        //         console.error('Error deleting guest session:', error);
+        //     }
+        // }
+        // Handle guest session cleanup
+        if (req.cookies['guestToken']) {
+            const guestToken = req.cookies['guestToken'];
+            try {
+                const decodedGuestToken = yield auth_1.auth.verifyToken(guestToken);
+                if (decodedGuestToken === null || decodedGuestToken === void 0 ? void 0 : decodedGuestToken.sessionId) {
+                    res.clearCookie("guestToken");
+                    const deleteSessionMessage = yield auth_1.auth.deleteUserSession(decodedGuestToken.sessionId);
+                    console.log('Guest session deletion:', deleteSessionMessage.message);
+                }
+                else {
+                    console.error("Invalid or null decoded guest token.");
+                }
+            }
+            catch (error) {
+                console.error('Error deleting guest session:', error);
+            }
         }
         // Create authenticated user session
         const authenticatedUserSession = yield auth_1.auth.createUserSession(foundUser.userId);

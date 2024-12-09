@@ -23,14 +23,16 @@ const handleSessionCookies = async (req: Request, res: Response, next: NextFunct
 
 	if(accessToken){
 		// verifyToken
-		const decoded = verifyToken(accessToken)
+		const decoded = await verifyToken(accessToken)
 		// if decoded token valid
-			// add decoded token to req body
-		// else
+		if(decoded){
+			req.body.decoded = decoded;
+		}else{
 			// set access token to null, remove decoded from request body
+
+		}
+	
 	}
-
-
 
 	if(!accessToken){
 		// try refreshing access token
@@ -47,7 +49,8 @@ const handleSessionCookies = async (req: Request, res: Response, next: NextFunct
 		if(!refreshToken){
 			if(guestToken){
 				// verify guestToken
-				const decoded = verifyToken(guestToken)
+				const decoded = await verifyToken(guestToken)
+				req.body.decoded = decoded;
 				
 			}else{
 				// create guest session
@@ -68,7 +71,9 @@ const handleSessionCookies = async (req: Request, res: Response, next: NextFunct
 				});
 			}
 		}
+
 	}
+	// console.log(req.body)
 
 	next()
 
@@ -76,21 +81,3 @@ const handleSessionCookies = async (req: Request, res: Response, next: NextFunct
 
 export default handleSessionCookies;
 
-
-
-	//   console.log(`accessToken before setting: ${accessToken}`);
-	//   // If token is undefined, set a new cookie
-	//   if (!accessToken) {
-	//     res.cookie("accessToken", "bye", {
-	//       httpOnly: true,  // Secure, inaccessible to client-side scripts
-	//       secure: process.env.NODE_ENV === "production", // Use HTTPS in production
-	//       maxAge: 24 * 60 * 60 * 1000, // 1 day in milliseconds
-	//       sameSite: "strict", // Helps prevent CSRF
-	//     });
-	//     console.log(`New cookie set: bye`);
-	//   } else {
-	//     console.log(`accessToken already exists: ${accessToken}`);
-	//   }
-
-	// //   Send a response back to the client
-	//   res.status(200).send("Cookie checked/set!");

@@ -31,7 +31,7 @@ const registerUser = async (req: Request, res: Response) => {
         }; 
 
         await db.insert(User).values(newUserData);
-        res.status(200).json({ success: true });
+        res.status(200).json({ success: true, message: "User successfully registered!" });
     
     } catch (error) {
         console.error("Error registering new user:", error);
