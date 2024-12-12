@@ -21,10 +21,10 @@ const updateUser = async (req: Request, res: Response) => {
 
         
         // Ensure req.decoded is set by the authorizeUser middleware
-        const userId = req.decoded?.userData?.userId;
+        const userId = req.body.decoded?.userId;
 
         if (!userId) {
-            return res.status(400).json({ message: "User ID is missing from request" });
+            return res.status(400).json({ message: "User ID is missing from request!" });
         }
         
         const userToUpdate = req.body

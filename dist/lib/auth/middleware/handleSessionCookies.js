@@ -13,60 +13,64 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const verifyToken_1 = __importDefault(require("../token/verifyToken"));
+const rotateRefreshToken_1 = __importDefault(require("../token/rotateRefreshToken"));
 const __1 = require("..");
 const handleSessionCookies = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     console.log("Authorization Middleware!!!");
-    // Get the tokens from the cookies
+    // Ensure `req.body.decoded` is initialized
+    if (!req.body.decoded) {
+        req.body.decoded = {};
+    }
     let accessToken = req.cookies['accessToken'];
     let refreshToken = req.cookies['refreshToken'];
     let guestToken = req.cookies['guestToken'];
     if (accessToken) {
-        // verifyToken
-        const decoded = yield (0, verifyToken_1.default)(accessToken);
-        // if decoded token valid
-        if (decoded) {
-            req.body.decoded = decoded;
+        const decodedAccessToken = yield (0, verifyToken_1.default)(accessToken);
+        const decodedRefreshToken = yield (0, verifyToken_1.default)(refreshToken);
+        if (decodedAccessToken && decodedRefreshToken) {
+            req.body.decoded.userId = decodedAccessToken.userId;
+            req.body.decoded.sessionId = decodedRefreshToken.sessionId;
         }
         else {
-            // set access token to null, remove decoded from request body
+            // Handle invalid tokens
+            req.body.decoded = null; // Optional: Clear decoded if invalid
         }
     }
-    if (!accessToken) {
-        // try refreshing access token
-        if (refreshToken) {
-            // verifyToken
-            // if token valid 
-            // rotate refresh token
-            // return
-            // else 
-            // logoutUser
+    if (!accessToken && refreshToken) {
+        const decodedRefreshToken = yield (0, verifyToken_1.default)(refreshToken);
+        if (decodedRefreshToken) {
+            req.body.decoded.sessionId = decodedRefreshToken.sessionId;
+            // Rotate refresh token (placeholder logic)
+            (0, rotateRefreshToken_1.default)(res, decodedRefreshToken);
+            // res.cookie("refreshToken", newRefreshToken, {...options});
         }
-        // if no refreshToken 
-        if (!refreshToken) {
-            if (guestToken) {
-                // verify guestToken
-                const decoded = yield (0, verifyToken_1.default)(guestToken);
-                req.body.decoded = decoded;
+        else {
+            // Handle invalid refresh token
+        }
+    }
+    // Skip guest token creation for all `/api/auth/*` routes
+    if (!accessToken && !refreshToken && !req.path.startsWith("/api/auth")) {
+        if (guestToken) {
+            const decodedGuestToken = yield (0, verifyToken_1.default)(guestToken);
+            if (decodedGuestToken) {
+                req.body.decoded.sessionId = decodedGuestToken === null || decodedGuestToken === void 0 ? void 0 : decodedGuestToken.sessionId;
             }
             else {
-                // create guest session
-                const guestUserSession = yield __1.auth.createUserSession();
-                // create guest token
-                const guestToken = yield __1.auth.generateToken(guestUserSession, "guest");
-                console.log(`guestToken: \n${guestToken}`);
-                // Calculate maxAge for guestToken
-                const guestTokenMaxAge = guestUserSession.expirationTime.getTime() - Date.now();
-                // set cookies
-                res.cookie("guestToken", guestToken, {
-                    httpOnly: true,
-                    secure: process.env.NODE_ENV === "production",
-                    sameSite: "strict",
-                    maxAge: guestTokenMaxAge, // Time remaining in milliseconds
-                });
             }
         }
+        else {
+            const guestUserSession = yield __1.auth.createUserSession();
+            const guestToken = yield __1.auth.generateToken(guestUserSession, "guest");
+            console.log(`guestToken: \n${guestToken}`);
+            const guestTokenMaxAge = guestUserSession.expirationTime.getTime() - Date.now();
+            res.cookie("guestToken", guestToken, {
+                httpOnly: true,
+                secure: process.env.NODE_ENV === "production",
+                sameSite: "strict",
+                maxAge: guestTokenMaxAge,
+            });
+        }
     }
-    // console.log(req.body)
     next();
 });
 exports.default = handleSessionCookies;

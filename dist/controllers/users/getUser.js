@@ -27,11 +27,11 @@ const getUser = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const db = useNeon ? neonDb_1.neonDb : localDb_1.localDb;
     try {
         // Ensure req.decoded is set by the authorizeUser middleware
-        const id = (_a = req.decoded) === null || _a === void 0 ? void 0 : _a.userId;
-        if (!id) {
-            return res.status(400).json({ message: "User ID is missing from request" });
+        const userId = (_a = req.body.decoded) === null || _a === void 0 ? void 0 : _a.userId;
+        if (!userId) {
+            return res.status(400).json({ message: "User ID is missing from request!" });
         }
-        const foundUserArr = yield db.select().from(Users_1.default).where((0, drizzle_orm_1.eq)(Users_1.default.userId, id));
+        const foundUserArr = yield db.select().from(Users_1.default).where((0, drizzle_orm_1.eq)(Users_1.default.userId, userId));
         if (foundUserArr.length === 0) {
             return res.status(404).json({ success: false, message: "User not found" });
         }

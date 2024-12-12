@@ -1,5 +1,4 @@
-
-import { Response, Request, NextFunction } from "express";
+import { Response, Request, NextFunction, response } from "express";
 import UserSession from "../../../database/schemas/UserSessions";
 import createUserSession from "../session/createUserSession";
 
@@ -8,75 +7,70 @@ import rotateRefreshToken from "../token/rotateRefreshToken";
 import { auth } from "..";
 
 const handleSessionCookies = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    console.log("Authorization Middleware!!!");
 
+    // Ensure `req.body.decoded` is initialized
+    if (!req.body.decoded) {
+        req.body.decoded = {};
+    }
 
-	console.log("Authorization Middleware!!!")
+    let accessToken: string = req.cookies['accessToken'];
+    let refreshToken: string = req.cookies['refreshToken'];
+    let guestToken: string = req.cookies['guestToken'];
 
-	// Get the tokens from the cookies
-	let accessToken: string = req.cookies['accessToken'];
-	let refreshToken: string = req.cookies['refreshToken'];
-	let guestToken: string = req.cookies['guestToken'];
+    if (accessToken) {
+        const decodedAccessToken = await verifyToken(accessToken);
+        const decodedRefreshToken = await verifyToken(refreshToken);
 
+        if (decodedAccessToken && decodedRefreshToken) {
+            req.body.decoded.userId = decodedAccessToken.userId;
+            req.body.decoded.sessionId = decodedRefreshToken.sessionId;
+        } else {
+            // Handle invalid tokens
+            req.body.decoded = null; // Optional: Clear decoded if invalid
+        }
+    }
 
+    if (!accessToken && refreshToken) {
+        const decodedRefreshToken = await verifyToken(refreshToken);
+        if (decodedRefreshToken) {
+			req.body.decoded.sessionId = decodedRefreshToken.sessionId;
 
-	if(accessToken){
-		// verifyToken
-		const decoded = await verifyToken(accessToken)
-		// if decoded token valid
-		if(decoded){
-			req.body.decoded = decoded;
-		}else{
-			// set access token to null, remove decoded from request body
+            // Rotate refresh token (placeholder logic)
+            rotateRefreshToken(res, decodedRefreshToken )
+            // res.cookie("refreshToken", newRefreshToken, {...options});
+        } else {
+            // Handle invalid refresh token
+        }
+    }
 
-		}
-	
-	}
+    // Skip guest token creation for all `/api/auth/*` routes
+    if (!accessToken && !refreshToken && !req.path.startsWith("/api/auth")){
+        if (guestToken) {
+            const decodedGuestToken = await verifyToken(guestToken);
+            if(decodedGuestToken){
+                req.body.decoded.sessionId = decodedGuestToken?.sessionId;				
+            }else{
 
-	if(!accessToken){
-		// try refreshing access token
-		if(refreshToken){
-		// verifyToken
-		// if token valid 
-			// rotate refresh token
-			// return
-		// else 
-			// logoutUser
-		}
+            }
 
-		// if no refreshToken 
-		if(!refreshToken){
-			if(guestToken){
-				// verify guestToken
-				const decoded = await verifyToken(guestToken)
-				req.body.decoded = decoded;
-				
-			}else{
-				// create guest session
-				const guestUserSession = await auth.createUserSession()
+        } else {
+            const guestUserSession = await auth.createUserSession();
+            const guestToken = await auth.generateToken(guestUserSession, "guest");
+			console.log(`guestToken: \n${guestToken}`);
 
-				// create guest token
-				const guestToken = await auth.generateToken(guestUserSession, "guest")
-				console.log(`guestToken: \n${guestToken}`);
-				
-				// Calculate maxAge for guestToken
-				const guestTokenMaxAge = guestUserSession.expirationTime.getTime() - Date.now();	
+            const guestTokenMaxAge = guestUserSession.expirationTime.getTime() - Date.now();
 
-				// set cookies
-				res.cookie("guestToken", guestToken, {
-					httpOnly: true,
-					secure: process.env.NODE_ENV === "production",
-					sameSite: "strict",
-					maxAge: guestTokenMaxAge, // Time remaining in milliseconds
-				});
-			}
-		}
+            res.cookie("guestToken", guestToken, {
+                httpOnly: true,
+                secure: process.env.NODE_ENV === "production",
+                sameSite: "strict",
+                maxAge: guestTokenMaxAge,
+            });
+        }
+    }
 
-	}
-	// console.log(req.body)
-
-	next()
-
+    next();
 };
 
 export default handleSessionCookies;
-

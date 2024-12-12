@@ -13,6 +13,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const Users_1 = __importDefault(require("../../database/schemas/Users"));
+const UserSessions_1 = __importDefault(require("../../database/schemas/UserSessions"));
 const drizzle_orm_1 = require("drizzle-orm");
 const auth_1 = require("../../lib/auth");
 const localDb_1 = require("../../database/localDb");
@@ -45,25 +46,8 @@ const loginUser = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     }
     // Create session tokens and cookies
     if (passwordValid) {
-        // Handle guest session cleanup
-        if (req.cookies['guestToken']) {
-            const guestToken = req.cookies['guestToken'];
-            try {
-                const decodedGuestToken = yield auth_1.auth.verifyToken(guestToken);
-                if (decodedGuestToken === null || decodedGuestToken === void 0 ? void 0 : decodedGuestToken.sessionId) {
-                    res.clearCookie("guestToken");
-                    const sessionId = String(decodedGuestToken === null || decodedGuestToken === void 0 ? void 0 : decodedGuestToken.sessionId);
-                    const deleteSessionMessage = yield auth_1.auth.deleteUserSession(sessionId);
-                    console.log('Guest session deletion:', deleteSessionMessage.message);
-                }
-                else {
-                    console.error("Invalid or null decoded guest token.");
-                }
-            }
-            catch (error) {
-                console.error('Error deleting guest session:', error);
-            }
-        }
+        // Clean up guest session
+        yield cleanUpGuestSession(req, res, db);
         // Create authenticated user session
         const authenticatedUserSession = yield auth_1.auth.createUserSession(foundUser.userId);
         // Create access and refresh tokens
@@ -87,6 +71,32 @@ const loginUser = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
             maxAge: refreshTokenMaxAge, // Time remaining in milliseconds
         });
         return res.status(200).json({ success: true, message: "User has successfully logged in!" });
+    }
+});
+// Delete guest session and remove guestToken cookie
+const cleanUpGuestSession = (req, res, db) => __awaiter(void 0, void 0, void 0, function* () {
+    // Handle guest session cleanup
+    if (req.cookies['guestToken']) {
+        const guestToken = req.cookies['guestToken'];
+        try {
+            const decodedGuestToken = yield auth_1.auth.verifyToken(guestToken);
+            if (decodedGuestToken === null || decodedGuestToken === void 0 ? void 0 : decodedGuestToken.sessionId) {
+                res.clearCookie("guestToken");
+                const sessionId = String(decodedGuestToken === null || decodedGuestToken === void 0 ? void 0 : decodedGuestToken.sessionId);
+                // Attempt to delete session
+                const sessionResponse = yield db.delete(UserSessions_1.default).where((0, drizzle_orm_1.eq)(UserSessions_1.default.sessionId, sessionId)).returning();
+                if (sessionResponse.length === 0) {
+                    console.warn("No guest session was deleted. Proceeding with login.");
+                }
+            }
+            else {
+                console.error("Invalid or missing sessionId in decoded guest token.");
+            }
+        }
+        catch (error) {
+            console.error('Error verifying or deleting guest session:', error);
+            // Proceed with login even if session cleanup fails
+        }
     }
 });
 exports.default = loginUser;
