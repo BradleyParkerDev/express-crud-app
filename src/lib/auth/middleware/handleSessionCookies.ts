@@ -36,8 +36,10 @@ const handleSessionCookies = async (req: Request, res: Response, next: NextFunct
         if (decodedRefreshToken) {
 			req.body.decoded.sessionId = decodedRefreshToken.sessionId;
 
+
             // Rotate refresh token (placeholder logic)
-            rotateRefreshToken(res, decodedRefreshToken )
+            // await rotateRefreshToken(res, decodedRefreshToken )
+            
             // res.cookie("refreshToken", newRefreshToken, {...options});
         } else {
             // Handle invalid refresh token

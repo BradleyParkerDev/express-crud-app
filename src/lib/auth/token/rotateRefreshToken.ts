@@ -21,26 +21,67 @@ const db = useNeon ? neonDb : localDb;
 
 
 
-// parameter sessionId
 const rotateRefreshToken = async (res: Response, decodedRefreshToken: JWTPayload): Promise<void> => {
-    let refreshToken:string = '';
-    let accessToken:string = '';
 
     console.log('decodedRefreshToken:', decodedRefreshToken)
 
-    const sessionResponse = await db.select().from(UserSession).where(eq(UserSession.sessionId, String(decodedRefreshToken.sessionId)))
 
-    console.log(sessionResponse)
-    // delete user session
+    // Get oldSessionId from decodedRefreshToken
+    const oldSessionId = String(decodedRefreshToken.sessionId)
 
-    // create an authenticated user session with same expiration time
+    // Get UserSession with sessionId
+    const sessionResponse = await db.select().from(UserSession).where(eq(UserSession.sessionId, oldSessionId))
 
+    console.log(sessionResponse[0])
+
+    // Extract old session userId and expirationTime
+    const userId = sessionResponse[0].userId
+    const newSessionExp = sessionResponse[0].expirationTime
+
+    // Create newAuthenticatedUserSession object
+    const newAuthenticatedUserSession = {
+        userId: userId,
+        startTime: new Date(),
+        expirationTime: newSessionExp
+    }
+
+
+    // Delete old UserSession
+    const deletionResult = await db.delete(UserSession).where(eq(UserSession.sessionId, oldSessionId))
+    console.log('deletionResult', deletionResult)
+    
+
+    // Create an authenticated user session
+    const [createdSession] = await db
+    .insert(UserSession)
+    .values(newAuthenticatedUserSession)
+    .returning({
+        sessionId: UserSession.sessionId,
+        userId: UserSession.userId,
+        expirationTime: UserSession.expirationTime,
+    });
 
     // generate new refresh and access tokens
+    const refreshToken = await auth.generateToken(createdSession, 'refresh')
+    const accessToken = await auth.generateToken(createdSession, 'access')
 
-    // set refresh and access token in request cookies
+    // Calculate maxAge for refreshToken
+    const refreshTokenMaxAge = newAuthenticatedUserSession.expirationTime.getTime() - Date.now();
 
-
+    // Set tokens in cookies
+    res.cookie("accessToken", accessToken, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
+        sameSite: "strict",
+        maxAge: 2 * 60 * 1000, // 2 minutes
+    });
+    
+    res.cookie("refreshToken", refreshToken, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
+        sameSite: "strict",
+        maxAge: refreshTokenMaxAge, // Time remaining in milliseconds
+    });
 
 
 }

@@ -13,6 +13,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const UserSessions_1 = __importDefault(require("../../../database/schemas/UserSessions"));
+const __1 = require("..");
 const drizzle_orm_1 = require("drizzle-orm");
 const localDb_1 = require("../../../database/localDb");
 const neonDb_1 = require("../../../database/neonDb");
@@ -23,16 +24,51 @@ dotenv_1.default.config();
 const useNeon = process.env.USE_NEON === 'true' || false;
 console.log(useNeon);
 const db = useNeon ? neonDb_1.neonDb : localDb_1.localDb;
-// parameter sessionId
 const rotateRefreshToken = (res, decodedRefreshToken) => __awaiter(void 0, void 0, void 0, function* () {
-    let refreshToken = '';
-    let accessToken = '';
     console.log('decodedRefreshToken:', decodedRefreshToken);
-    const sessionResponse = yield db.select().from(UserSessions_1.default).where((0, drizzle_orm_1.eq)(UserSessions_1.default.sessionId, String(decodedRefreshToken.sessionId)));
-    console.log(sessionResponse);
-    // delete user session
-    // create an authenticated user session with same expiration time
+    // Get oldSessionId from decodedRefreshToken
+    const oldSessionId = String(decodedRefreshToken.sessionId);
+    // Get UserSession with sessionId
+    const sessionResponse = yield db.select().from(UserSessions_1.default).where((0, drizzle_orm_1.eq)(UserSessions_1.default.sessionId, oldSessionId));
+    console.log(sessionResponse[0]);
+    // Extract old session userId and expirationTime
+    const userId = sessionResponse[0].userId;
+    const newSessionExp = sessionResponse[0].expirationTime;
+    // Create newAuthenticatedUserSession object
+    const newAuthenticatedUserSession = {
+        userId: userId,
+        startTime: new Date(),
+        expirationTime: newSessionExp
+    };
+    // Delete old UserSession
+    const deletionResult = yield db.delete(UserSessions_1.default).where((0, drizzle_orm_1.eq)(UserSessions_1.default.sessionId, oldSessionId));
+    console.log('deletionResult', deletionResult);
+    // Create an authenticated user session
+    const [createdSession] = yield db
+        .insert(UserSessions_1.default)
+        .values(newAuthenticatedUserSession)
+        .returning({
+        sessionId: UserSessions_1.default.sessionId,
+        userId: UserSessions_1.default.userId,
+        expirationTime: UserSessions_1.default.expirationTime,
+    });
     // generate new refresh and access tokens
-    // set refresh and access token in request cookies
+    const refreshToken = yield __1.auth.generateToken(createdSession, 'refresh');
+    const accessToken = yield __1.auth.generateToken(createdSession, 'access');
+    // Calculate maxAge for refreshToken
+    const refreshTokenMaxAge = newAuthenticatedUserSession.expirationTime.getTime() - Date.now();
+    // Set tokens in cookies
+    res.cookie("accessToken", accessToken, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
+        sameSite: "strict",
+        maxAge: 2 * 60 * 1000, // 2 minutes
+    });
+    res.cookie("refreshToken", refreshToken, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
+        sameSite: "strict",
+        maxAge: refreshTokenMaxAge, // Time remaining in milliseconds
+    });
 });
 exports.default = rotateRefreshToken;
