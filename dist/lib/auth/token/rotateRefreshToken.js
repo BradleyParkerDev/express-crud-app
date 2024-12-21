@@ -24,7 +24,7 @@ dotenv_1.default.config();
 const useNeon = process.env.USE_NEON === 'true' || false;
 console.log(useNeon);
 const db = useNeon ? neonDb_1.neonDb : localDb_1.localDb;
-const rotateRefreshToken = (res, decodedRefreshToken) => __awaiter(void 0, void 0, void 0, function* () {
+const rotateRefreshToken = (req, res, decodedRefreshToken) => __awaiter(void 0, void 0, void 0, function* () {
     console.log('decodedRefreshToken:', decodedRefreshToken);
     // Get oldSessionId from decodedRefreshToken
     const oldSessionId = String(decodedRefreshToken.sessionId);
@@ -72,5 +72,8 @@ const rotateRefreshToken = (res, decodedRefreshToken) => __awaiter(void 0, void 
         sameSite: "strict",
         maxAge: refreshTokenMaxAge, // Time remaining in milliseconds
     });
+    // Add createdSession info to req.body.decoded
+    req.body.decoded.sessionId = createdSession.sessionId;
+    req.body.decoded.userId = createdSession.userId;
 });
 exports.default = rotateRefreshToken;

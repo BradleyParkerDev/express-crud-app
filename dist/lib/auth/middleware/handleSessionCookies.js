@@ -12,9 +12,20 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+const UserSessions_1 = __importDefault(require("../../../database/schemas/UserSessions"));
 const verifyToken_1 = __importDefault(require("../token/verifyToken"));
 const rotateRefreshToken_1 = __importDefault(require("../token/rotateRefreshToken"));
 const __1 = require("..");
+const drizzle_orm_1 = require("drizzle-orm");
+const localDb_1 = require("../../../database/localDb");
+const neonDb_1 = require("../../../database/neonDb");
+const dotenv_1 = __importDefault(require("dotenv"));
+// Load environment variables
+dotenv_1.default.config();
+// Explicit boolean conversion with fallback to false
+const useNeon = process.env.USE_NEON === 'true' || false;
+console.log(useNeon);
+const db = useNeon ? neonDb_1.neonDb : localDb_1.localDb;
 const handleSessionCookies = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     console.log("Authorization Middleware!!!");
     // Ensure `req.body.decoded` is initialized
@@ -24,6 +35,7 @@ const handleSessionCookies = (req, res, next) => __awaiter(void 0, void 0, void 
     let accessToken = req.cookies['accessToken'];
     let refreshToken = req.cookies['refreshToken'];
     let guestToken = req.cookies['guestToken'];
+    // If access token present, add userId and sessionId to req.body.decoded
     if (accessToken) {
         const decodedAccessToken = yield (0, verifyToken_1.default)(accessToken);
         const decodedRefreshToken = yield (0, verifyToken_1.default)(refreshToken);
@@ -36,41 +48,76 @@ const handleSessionCookies = (req, res, next) => __awaiter(void 0, void 0, void 
             req.body.decoded = null; // Optional: Clear decoded if invalid
         }
     }
+    // No access token, rotate refresh token and get new access token
     if (!accessToken && refreshToken) {
         const decodedRefreshToken = yield (0, verifyToken_1.default)(refreshToken);
         if (decodedRefreshToken) {
-            req.body.decoded.sessionId = decodedRefreshToken.sessionId;
-            // Rotate refresh token (placeholder logic)
-            yield (0, rotateRefreshToken_1.default)(res, decodedRefreshToken);
-            // res.cookie("refreshToken", newRefreshToken, {...options});
+            // Rotate refresh token 
+            yield (0, rotateRefreshToken_1.default)(req, res, decodedRefreshToken);
         }
         else {
             // Handle invalid refresh token
         }
     }
-    // Skip guest token creation for all `/api/auth/*` routes
+    // Handle guest session, skip for all `/api/auth/*` routes
     if (!accessToken && !refreshToken && !req.path.startsWith("/api/auth")) {
-        if (guestToken) {
-            const decodedGuestToken = yield (0, verifyToken_1.default)(guestToken);
-            if (decodedGuestToken) {
-                req.body.decoded.sessionId = decodedGuestToken === null || decodedGuestToken === void 0 ? void 0 : decodedGuestToken.sessionId;
-            }
-            else {
-            }
-        }
-        else {
-            const guestUserSession = yield __1.auth.createUserSession();
-            const guestToken = yield __1.auth.generateToken(guestUserSession, "guest");
-            console.log(`guestToken: \n${guestToken}`);
-            const guestTokenMaxAge = guestUserSession.expirationTime.getTime() - Date.now();
-            res.cookie("guestToken", guestToken, {
-                httpOnly: true,
-                secure: process.env.NODE_ENV === "production",
-                sameSite: "strict",
-                maxAge: guestTokenMaxAge,
-            });
-        }
+        yield handleGuestSession(req, res, guestToken);
     }
     next();
 });
 exports.default = handleSessionCookies;
+// Handles guest session
+const handleGuestSession = (req, res, guestToken) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        if (guestToken) {
+            const decodedGuestToken = yield (0, verifyToken_1.default)(guestToken);
+            if (decodedGuestToken) {
+                const guestSessionId = String(decodedGuestToken === null || decodedGuestToken === void 0 ? void 0 : decodedGuestToken.sessionId);
+                console.log("\nguestSessionId: ", guestSessionId, "\n");
+                // Check database for guest session
+                const [foundGuestSession] = yield db.select().from(UserSessions_1.default).where((0, drizzle_orm_1.eq)(UserSessions_1.default.sessionId, guestSessionId));
+                if (foundGuestSession) {
+                    // Add sessionId to req.body.decoded if session found
+                    console.log("\nfoundGuestSession: ", foundGuestSession, "\n");
+                    req.body.decoded.sessionId = foundGuestSession.sessionId;
+                }
+                else {
+                    // Delete cookie if the guest session does not exist in the database.
+                    console.log("\nRemoving guestToken from cookies, no guest session Found!\n");
+                    res.clearCookie("guestToken");
+                    // Create a new guest session
+                    yield createNewGuestSession(res);
+                }
+            }
+            else {
+                // If guest token invalid
+                console.log("\nRemoving guestToken from cookies, token invalid!\n");
+                res.clearCookie("guestToken");
+                // Create a new guest session
+                yield createNewGuestSession(res);
+            }
+        }
+        else {
+            // Create a new guest session
+            yield createNewGuestSession(res);
+        }
+    }
+    catch (error) {
+        console.error("Error handling guest token:", error);
+        res.status(500).json({ error: "Internal server error" });
+    }
+});
+// Create new guest session, token, and cookie
+const createNewGuestSession = (res) => __awaiter(void 0, void 0, void 0, function* () {
+    console.log("\nCreating new guest session, token, and cookie!\n");
+    const guestUserSession = yield __1.auth.createUserSession();
+    const guestToken = yield __1.auth.generateToken(guestUserSession, "guest");
+    console.log(`guestToken: \n${guestToken}`);
+    const guestTokenMaxAge = guestUserSession.expirationTime.getTime() - Date.now();
+    res.cookie("guestToken", guestToken, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
+        sameSite: "strict",
+        maxAge: guestTokenMaxAge,
+    });
+});

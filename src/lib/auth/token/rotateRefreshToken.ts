@@ -1,4 +1,4 @@
-import { Response } from "express";
+import { Request,Response } from "express";
 import UserSession from "../../../database/schemas/UserSessions";
 import { auth } from "..";
 import { eq } from "drizzle-orm";
@@ -21,7 +21,7 @@ const db = useNeon ? neonDb : localDb;
 
 
 
-const rotateRefreshToken = async (res: Response, decodedRefreshToken: JWTPayload): Promise<void> => {
+const rotateRefreshToken = async (req: Request, res: Response, decodedRefreshToken: JWTPayload): Promise<void> => {
 
     console.log('decodedRefreshToken:', decodedRefreshToken)
 
@@ -61,6 +61,7 @@ const rotateRefreshToken = async (res: Response, decodedRefreshToken: JWTPayload
         expirationTime: UserSession.expirationTime,
     });
 
+
     // generate new refresh and access tokens
     const refreshToken = await auth.generateToken(createdSession, 'refresh')
     const accessToken = await auth.generateToken(createdSession, 'access')
@@ -85,7 +86,9 @@ const rotateRefreshToken = async (res: Response, decodedRefreshToken: JWTPayload
         maxAge: refreshTokenMaxAge, // Time remaining in milliseconds
     });
 
-
+    // Add createdSession info to req.body.decoded
+    req.body.decoded.sessionId = createdSession.sessionId;
+    req.body.decoded.userId = createdSession.userId;
 }
 
 
