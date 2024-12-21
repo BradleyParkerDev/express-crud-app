@@ -30,7 +30,7 @@ const rotateRefreshToken = (res, decodedRefreshToken) => __awaiter(void 0, void 
     const oldSessionId = String(decodedRefreshToken.sessionId);
     // Get UserSession with sessionId
     const sessionResponse = yield db.select().from(UserSessions_1.default).where((0, drizzle_orm_1.eq)(UserSessions_1.default.sessionId, oldSessionId));
-    console.log(sessionResponse[0]);
+    console.log("\nCurrent UserSession:", sessionResponse[0]);
     // Extract old session userId and expirationTime
     const userId = sessionResponse[0].userId;
     const newSessionExp = sessionResponse[0].expirationTime;
@@ -42,7 +42,7 @@ const rotateRefreshToken = (res, decodedRefreshToken) => __awaiter(void 0, void 
     };
     // Delete old UserSession
     const deletionResult = yield db.delete(UserSessions_1.default).where((0, drizzle_orm_1.eq)(UserSessions_1.default.sessionId, oldSessionId));
-    console.log('deletionResult', deletionResult);
+    console.log('\ndeletionResult:', deletionResult);
     // Create an authenticated user session
     const [createdSession] = yield db
         .insert(UserSessions_1.default)
@@ -55,6 +55,8 @@ const rotateRefreshToken = (res, decodedRefreshToken) => __awaiter(void 0, void 
     // generate new refresh and access tokens
     const refreshToken = yield __1.auth.generateToken(createdSession, 'refresh');
     const accessToken = yield __1.auth.generateToken(createdSession, 'access');
+    console.log("\nNew refreshToken:", refreshToken);
+    console.log("\nNew accessToken:", accessToken);
     // Calculate maxAge for refreshToken
     const refreshTokenMaxAge = newAuthenticatedUserSession.expirationTime.getTime() - Date.now();
     // Set tokens in cookies

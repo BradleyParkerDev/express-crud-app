@@ -32,7 +32,7 @@ const rotateRefreshToken = async (res: Response, decodedRefreshToken: JWTPayload
     // Get UserSession with sessionId
     const sessionResponse = await db.select().from(UserSession).where(eq(UserSession.sessionId, oldSessionId))
 
-    console.log(sessionResponse[0])
+    console.log("\nCurrent UserSession:",sessionResponse[0])
 
     // Extract old session userId and expirationTime
     const userId = sessionResponse[0].userId
@@ -48,7 +48,7 @@ const rotateRefreshToken = async (res: Response, decodedRefreshToken: JWTPayload
 
     // Delete old UserSession
     const deletionResult = await db.delete(UserSession).where(eq(UserSession.sessionId, oldSessionId))
-    console.log('deletionResult', deletionResult)
+    console.log('\ndeletionResult:', deletionResult)
     
 
     // Create an authenticated user session
@@ -64,7 +64,9 @@ const rotateRefreshToken = async (res: Response, decodedRefreshToken: JWTPayload
     // generate new refresh and access tokens
     const refreshToken = await auth.generateToken(createdSession, 'refresh')
     const accessToken = await auth.generateToken(createdSession, 'access')
-
+    console.log("\nNew refreshToken:", refreshToken);
+    console.log("\nNew accessToken:", accessToken);
+    
     // Calculate maxAge for refreshToken
     const refreshTokenMaxAge = newAuthenticatedUserSession.expirationTime.getTime() - Date.now();
 

@@ -13,6 +13,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const verifyToken_1 = __importDefault(require("../token/verifyToken"));
+const rotateRefreshToken_1 = __importDefault(require("../token/rotateRefreshToken"));
 const __1 = require("..");
 const handleSessionCookies = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     console.log("Authorization Middleware!!!");
@@ -40,7 +41,7 @@ const handleSessionCookies = (req, res, next) => __awaiter(void 0, void 0, void 
         if (decodedRefreshToken) {
             req.body.decoded.sessionId = decodedRefreshToken.sessionId;
             // Rotate refresh token (placeholder logic)
-            // await rotateRefreshToken(res, decodedRefreshToken )
+            yield (0, rotateRefreshToken_1.default)(res, decodedRefreshToken);
             // res.cookie("refreshToken", newRefreshToken, {...options});
         }
         else {
