@@ -1,6 +1,5 @@
-import { Response, Request, NextFunction, response } from "express";
+import { Response, Request, NextFunction } from "express";
 import UserSession from "../../../database/schemas/UserSessions";
-import createUserSession from "../session/createUserSession";
 
 import verifyToken from "../token/verifyToken";
 import rotateRefreshToken from "../token/rotateRefreshToken";
@@ -9,7 +8,6 @@ import { eq } from "drizzle-orm";
 import { localDb } from "../../../database/localDb";
 import { neonDb } from "../../../database/neonDb";
 import dotenv from 'dotenv';
-
 
 
 // Load environment variables
@@ -135,7 +133,7 @@ const createNewGuestSession = async (res:Response): Promise<void> =>{
     res.cookie("guestToken", guestToken, {
         httpOnly: true,
         secure: process.env.NODE_ENV === "production",
-        sameSite: "strict",
+        sameSite: "none",
         maxAge: guestTokenMaxAge,
     });
 }

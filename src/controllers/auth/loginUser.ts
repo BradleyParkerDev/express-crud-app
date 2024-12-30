@@ -82,6 +82,10 @@ const loginUser = async (req: Request, res: Response) => {
 
 };
 
+
+export default loginUser;
+
+
 // Delete guest session and remove guestToken cookie
 const cleanUpGuestSession = async (req:Request, res:Response, db:any) =>{
     // Handle guest session cleanup
@@ -108,5 +112,3 @@ const cleanUpGuestSession = async (req:Request, res:Response, db:any) =>{
         }
     }
 }
-
-export default loginUser;

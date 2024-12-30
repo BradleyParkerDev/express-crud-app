@@ -73,6 +73,7 @@ const loginUser = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
         return res.status(200).json({ success: true, message: "User has successfully logged in!" });
     }
 });
+exports.default = loginUser;
 // Delete guest session and remove guestToken cookie
 const cleanUpGuestSession = (req, res, db) => __awaiter(void 0, void 0, void 0, function* () {
     // Handle guest session cleanup
@@ -99,4 +100,3 @@ const cleanUpGuestSession = (req, res, db) => __awaiter(void 0, void 0, void 0, 
         }
     }
 });
-exports.default = loginUser;

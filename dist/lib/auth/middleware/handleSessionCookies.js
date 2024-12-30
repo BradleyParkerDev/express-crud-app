@@ -117,7 +117,7 @@ const createNewGuestSession = (res) => __awaiter(void 0, void 0, void 0, functio
     res.cookie("guestToken", guestToken, {
         httpOnly: true,
         secure: process.env.NODE_ENV === "production",
-        sameSite: "strict",
+        sameSite: "none",
         maxAge: guestTokenMaxAge,
     });
 });

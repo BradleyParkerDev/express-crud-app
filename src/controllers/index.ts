@@ -2,6 +2,10 @@
 import loginUser from "./auth/loginUser";
 import logoutUser from "./auth/logoutUser";
 
+// images controller imports
+import deleteUserImage from "./images/deleteUserImage";
+import uploadUserImage from "./images/uploadUserImage";
+
 // users controller imports 
 import registerUser from "./users/registerUser";
 import getUser from "./users/getUser";
@@ -14,6 +18,12 @@ import deleteUser from "./users/deleteUser";
 export const authController = {
     loginUser,
     logoutUser
+}
+
+// export imagesController
+export const imagesController = {
+    deleteUserImage,
+    uploadUserImage
 }
 
 // export usersController
