@@ -9,7 +9,7 @@ import dotenv from 'dotenv';
 dotenv.config();
 
 
-const getUser = async (req: Request, res: Response) => {
+const getUser = async (req: Request, res: Response): Promise<void> => {
 
     // Explicit boolean conversion with fallback to false
     const useNeon = process.env.USE_NEON === 'true' || false;
@@ -21,13 +21,13 @@ const getUser = async (req: Request, res: Response) => {
         // Ensure req.decoded is set by the authorizeUser middleware
         const userId = req.body.decoded?.userId;
         if (!userId) {
-            return res.status(400).json({ message: "User ID is missing from request!" });
+            res.status(400).json({ message: "User ID is missing from request!" });
         }
 
         const foundUserArr = await db.select().from(User).where(eq(User.userId, userId));
 
         if (foundUserArr.length === 0) {
-            return res.status(404).json({ success: false, message: "User not found" });
+            res.status(404).json({ success: false, message: "User not found" });
         }
 
         // 

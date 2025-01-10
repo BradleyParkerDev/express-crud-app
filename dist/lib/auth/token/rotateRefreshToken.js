@@ -22,14 +22,24 @@ const dotenv_1 = __importDefault(require("dotenv"));
 dotenv_1.default.config();
 // Explicit boolean conversion with fallback to false
 const useNeon = process.env.USE_NEON === 'true' || false;
-console.log(useNeon);
 const db = useNeon ? neonDb_1.neonDb : localDb_1.localDb;
+// I want to return a boolean of false if the session does not exist
 const rotateRefreshToken = (req, res, decodedRefreshToken) => __awaiter(void 0, void 0, void 0, function* () {
     console.log('decodedRefreshToken:', decodedRefreshToken);
     // Get oldSessionId from decodedRefreshToken
     const oldSessionId = String(decodedRefreshToken.sessionId);
     // Get UserSession with sessionId
     const sessionResponse = yield db.select().from(UserSessions_1.default).where((0, drizzle_orm_1.eq)(UserSessions_1.default.sessionId, oldSessionId));
+    // Handle the case where the session does not exist
+    if (!sessionResponse.length) {
+        console.error("Session not found for sessionId:", oldSessionId);
+        console.error("Query result:", sessionResponse);
+        // Clear stale cookies
+        res.clearCookie("refreshToken");
+        res.clearCookie("accessToken");
+        // Return false to indicate failure
+        return false;
+    }
     console.log("\nCurrent UserSession:", sessionResponse[0]);
     // Extract old session userId and expirationTime
     const userId = sessionResponse[0].userId;
@@ -75,5 +85,6 @@ const rotateRefreshToken = (req, res, decodedRefreshToken) => __awaiter(void 0, 
     // Add createdSession info to req.body.decoded
     req.body.decoded.sessionId = createdSession.sessionId;
     req.body.decoded.userId = createdSession.userId;
+    return true;
 });
 exports.default = rotateRefreshToken;

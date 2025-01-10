@@ -29,39 +29,31 @@ const deleteUser = (req, res) => __awaiter(void 0, void 0, void 0, function* () 
         const userId = (_a = req.body.decoded) === null || _a === void 0 ? void 0 : _a.userId;
         const sessionId = (_b = req.body.decoded) === null || _b === void 0 ? void 0 : _b.sessionId;
         if (!userId) {
-            return res.status(400).json({ message: "User ID is missing from request!" });
+            res.status(400).json({ message: "User ID is missing from request!" });
         }
         if (!sessionId) {
-            return res.status(400).json({ message: "Session ID is missing from request!" });
+            res.status(400).json({ message: "Session ID is missing from request!" });
         }
         // Delete session first
         const sessionResponse = yield db.delete(UserSessions_1.default).where((0, drizzle_orm_1.eq)(UserSessions_1.default.userId, userId)).returning();
         if (sessionResponse.length === 0) {
-            return res.status(400).json({ message: "Failed to delete session!" });
+            res.status(400).json({ message: "Failed to delete session!" });
         }
         // Delete user
         const userResponse = yield db.delete(Users_1.default).where((0, drizzle_orm_1.eq)(Users_1.default.userId, userId)).returning();
         if (userResponse.length === 0) {
-            return res.status(404).json({ message: "User not found or already deleted!" });
+            res.status(404).json({ message: "User not found or already deleted!" });
         }
         // Clear cookies
-        res.clearCookie("accessToken", {
-            httpOnly: true,
-            secure: process.env.NODE_ENV === "production",
-            sameSite: "strict",
-        });
-        res.clearCookie("refreshToken", {
-            httpOnly: true,
-            secure: process.env.NODE_ENV === "production",
-            sameSite: "strict",
-        });
-        return res.status(200).json({
+        res.clearCookie("accessToken");
+        res.clearCookie("refreshToken");
+        res.status(200).json({
             message: "User and session successfully deleted!",
             user: userResponse[0],
         });
     }
     catch (error) {
-        return res.status(500).json({ message: "Error deleting user!", error });
+        res.status(500).json({ message: "Error deleting user!", error });
     }
 });
 exports.default = deleteUser;

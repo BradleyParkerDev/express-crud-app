@@ -35,14 +35,16 @@ const loginUser = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     console.log(foundUserArr);
     // If user not found
     if (foundUserArr.length === 0) {
-        return res.status(404).json({ success: false, message: 'Could not find user.' });
+        res.status(404).json({ success: false, message: 'Could not find user.' });
+        return;
     }
     const foundUser = foundUserArr[0];
     // Validate password
     const passwordValid = yield auth_1.auth.validatePassword(userLoginData.password, foundUser.password);
     // If password not valid
     if (!passwordValid) {
-        return res.status(401).json({ success: false, message: 'Password was incorrect.' });
+        res.status(401).json({ success: false, message: 'Password was incorrect.' });
+        return;
     }
     // Create session tokens and cookies
     if (passwordValid) {
@@ -70,7 +72,8 @@ const loginUser = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
             sameSite: "strict",
             maxAge: refreshTokenMaxAge, // Time remaining in milliseconds
         });
-        return res.status(200).json({ success: true, message: "User has successfully logged in!" });
+        res.status(200).json({ success: true, message: "User has successfully logged in!" });
+        return;
     }
 });
 exports.default = loginUser;

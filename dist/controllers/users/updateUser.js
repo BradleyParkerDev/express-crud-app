@@ -30,7 +30,7 @@ const updateUser = (req, res) => __awaiter(void 0, void 0, void 0, function* () 
         // Ensure req.decoded is set by the authorizeUser middleware
         const userId = (_a = req.body.decoded) === null || _a === void 0 ? void 0 : _a.userId;
         if (!userId) {
-            return res.status(400).json({ message: "User ID is missing from request!" });
+            res.status(400).json({ message: "User ID is missing from request!" });
         }
         const userToUpdate = req.body;
         if (req.body.currentPassword) {
@@ -39,7 +39,7 @@ const updateUser = (req, res) => __awaiter(void 0, void 0, void 0, function* () 
             // Find the user - it returns an array
             const foundUserArr = yield db.select().from(Users_1.default).where((0, drizzle_orm_1.eq)(Users_1.default.userId, userId));
             if (foundUserArr.length === 0) {
-                return res.status(404).json({ success: false, message: "User not found" });
+                res.status(404).json({ success: false, message: "User not found" });
             }
             // First user in array
             const foundUser = {
@@ -62,14 +62,14 @@ const updateUser = (req, res) => __awaiter(void 0, void 0, void 0, function* () 
                     console.log(response);
                     // if response array length is 0, user not found
                     if (response.length === 0) {
-                        return res.status(404).json({ success: false, message: "User not found" });
+                        res.status(404).json({ success: false, message: "User not found" });
                     }
                     const updatedUser = response[0].updatedUser;
-                    return res.status(200).json({ success: true, message: "Successfully updated user password!", updatedUser });
+                    res.status(200).json({ success: true, message: "Successfully updated user password!", updatedUser });
                 }
             }
             else {
-                return res.status(401).json({ message: "Current password does not match password in database!" });
+                res.status(401).json({ message: "Current password does not match password in database!" });
             }
         }
         else {
@@ -83,19 +83,19 @@ const updateUser = (req, res) => __awaiter(void 0, void 0, void 0, function* () 
                 console.log(response);
                 // if response array length is 0, user not found
                 if (response.length === 0) {
-                    return res.status(404).json({ success: false, message: "User not found" });
+                    res.status(404).json({ success: false, message: "User not found" });
                 }
                 const updatedUser = response[0].updatedUser;
-                return res.status(200).json({ success: true, message: 'User updated successfully.', updatedUser });
+                res.status(200).json({ success: true, message: 'User updated successfully.', updatedUser });
             }
             else {
-                return res.status(403).json({ message: "New password not hashed!" });
+                res.status(403).json({ message: "New password not hashed!" });
             }
         }
     }
     catch (error) {
         console.error("Error updating user:", error);
-        return res.status(500).json({ success: false, message: "Error updating user", error });
+        res.status(500).json({ success: false, message: "Error updating user", error });
     }
 });
 exports.default = updateUser;

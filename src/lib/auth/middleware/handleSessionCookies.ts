@@ -17,7 +17,6 @@ dotenv.config();
 // Explicit boolean conversion with fallback to false
 const useNeon = process.env.USE_NEON === 'true' || false;
 
-console.log(useNeon);
 const db = useNeon ? neonDb : localDb;
 
 
@@ -52,9 +51,21 @@ const handleSessionCookies = async (req: Request, res: Response, next: NextFunct
         const decodedRefreshToken = await verifyToken(refreshToken);
         if (decodedRefreshToken) {
             // Rotate refresh token 
-            await rotateRefreshToken(req, res, decodedRefreshToken )
+
+            // if it is returned false I will call the createGuestSession function below
+            const success = await rotateRefreshToken(req, res, decodedRefreshToken )
+
+            if (!success) {
+                // Create a new guest session if rotation fails
+                console.log("Creating guest session after failed token rotation");
+                await createNewGuestSession(res);
+            }
         } else {
             // Handle invalid refresh token
+            console.log("Invalid refresh token. Clearing cookies and creating guest session.");
+            res.clearCookie("refreshToken");
+            res.clearCookie("accessToken");
+            await createNewGuestSession(res);
         }
     }
 
@@ -136,4 +147,6 @@ const createNewGuestSession = async (res:Response): Promise<void> =>{
         sameSite: "none",
         maxAge: guestTokenMaxAge,
     });
+
+    return;
 }

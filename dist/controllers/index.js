@@ -3,7 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.usersController = exports.imagesController = exports.authController = void 0;
+exports.userController = exports.imagesController = exports.authController = void 0;
 // auth controller imports
 const loginUser_1 = __importDefault(require("./auth/loginUser"));
 const logoutUser_1 = __importDefault(require("./auth/logoutUser"));
@@ -26,7 +26,7 @@ exports.imagesController = {
     uploadUserImage: uploadUserImage_1.default
 };
 // export usersController
-exports.usersController = {
+exports.userController = {
     registerUser: registerUser_1.default,
     getUser: getUser_1.default,
     updateUser: updateUser_1.default,

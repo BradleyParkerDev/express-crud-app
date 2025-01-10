@@ -19,5 +19,6 @@ dotenv_1.default.config();
 const storage = multer_1.default.memoryStorage();
 const upload = (0, multer_1.default)({ storage: storage });
 const uploadUserImage = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    return;
 });
 exports.default = uploadUserImage;

@@ -27,7 +27,7 @@ export const imagesController = {
 }
 
 // export usersController
-export const usersController =  {
+export const userController =  {
     registerUser,
     getUser,
     updateUser,

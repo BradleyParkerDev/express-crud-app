@@ -9,7 +9,7 @@ import dotenv from 'dotenv';
 // Load environment variables
 dotenv.config();
 
-const updateUser = async (req: Request, res: Response) => {
+const updateUser = async (req: Request, res: Response): Promise<void> => {
 
     // Explicit boolean conversion with fallback to false
     const useNeon = process.env.USE_NEON === 'true' || false;
@@ -24,7 +24,7 @@ const updateUser = async (req: Request, res: Response) => {
         const userId = req.body.decoded?.userId;
 
         if (!userId) {
-            return res.status(400).json({ message: "User ID is missing from request!" });
+            res.status(400).json({ message: "User ID is missing from request!" });
         }
         
         const userToUpdate = req.body
@@ -39,7 +39,7 @@ const updateUser = async (req: Request, res: Response) => {
             const foundUserArr = await db.select().from(User).where(eq(User.userId, userId));
 
             if (foundUserArr.length === 0) {
-                return res.status(404).json({ success: false, message: "User not found" });
+                res.status(404).json({ success: false, message: "User not found" });
             }
             // First user in array
             const foundUser = {
@@ -68,17 +68,17 @@ const updateUser = async (req: Request, res: Response) => {
 
                     // if response array length is 0, user not found
                     if (response.length === 0) {
-                        return res.status(404).json({ success: false, message: "User not found" });
+                        res.status(404).json({ success: false, message: "User not found" });
                     }
 
                     const updatedUser = response[0].updatedUser
-                    return res.status(200).json({ success: true, message:"Successfully updated user password!", updatedUser });
+                    res.status(200).json({ success: true, message:"Successfully updated user password!", updatedUser });
 
                 }
 
             }else{
 
-                return res.status(401).json({ message: "Current password does not match password in database!" });
+                res.status(401).json({ message: "Current password does not match password in database!" });
 
             }
 
@@ -98,16 +98,16 @@ const updateUser = async (req: Request, res: Response) => {
 
                 // if response array length is 0, user not found
                 if (response.length === 0) {
-                    return res.status(404).json({ success: false, message: "User not found" });
+                    res.status(404).json({ success: false, message: "User not found" });
                 }
 
                 const updatedUser = response[0].updatedUser
 
-                return res.status(200).json({ success: true, message: 'User updated successfully.', updatedUser });
+                res.status(200).json({ success: true, message: 'User updated successfully.', updatedUser });
 
             }else{
 
-                return res.status(403).json({ message: "New password not hashed!" });
+                res.status(403).json({ message: "New password not hashed!" });
 
 
             }
@@ -117,7 +117,7 @@ const updateUser = async (req: Request, res: Response) => {
 
     } catch (error) {
         console.error("Error updating user:", error);
-        return res.status(500).json({ success: false, message: "Error updating user", error });
+        res.status(500).json({ success: false, message: "Error updating user", error });
     }
 }
 

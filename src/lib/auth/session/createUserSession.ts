@@ -10,7 +10,6 @@ dotenv.config();
 // Explicit boolean conversion with fallback to false
 const useNeon = process.env.USE_NEON === 'true' || false;
 
-console.log(useNeon);
 const db = useNeon ? neonDb : localDb;
 
 

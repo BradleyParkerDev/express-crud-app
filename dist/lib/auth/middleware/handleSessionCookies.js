@@ -24,7 +24,6 @@ const dotenv_1 = __importDefault(require("dotenv"));
 dotenv_1.default.config();
 // Explicit boolean conversion with fallback to false
 const useNeon = process.env.USE_NEON === 'true' || false;
-console.log(useNeon);
 const db = useNeon ? neonDb_1.neonDb : localDb_1.localDb;
 const handleSessionCookies = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     console.log("Authorization Middleware!!!");
@@ -53,10 +52,20 @@ const handleSessionCookies = (req, res, next) => __awaiter(void 0, void 0, void 
         const decodedRefreshToken = yield (0, verifyToken_1.default)(refreshToken);
         if (decodedRefreshToken) {
             // Rotate refresh token 
-            yield (0, rotateRefreshToken_1.default)(req, res, decodedRefreshToken);
+            // if it is returned false I will call the createGuestSession function below
+            const success = yield (0, rotateRefreshToken_1.default)(req, res, decodedRefreshToken);
+            if (!success) {
+                // Create a new guest session if rotation fails
+                console.log("Creating guest session after failed token rotation");
+                yield createNewGuestSession(res);
+            }
         }
         else {
             // Handle invalid refresh token
+            console.log("Invalid refresh token. Clearing cookies and creating guest session.");
+            res.clearCookie("refreshToken");
+            res.clearCookie("accessToken");
+            yield createNewGuestSession(res);
         }
     }
     // Handle guest session, skip for all `/api/auth/*` routes
@@ -120,4 +129,5 @@ const createNewGuestSession = (res) => __awaiter(void 0, void 0, void 0, functio
         sameSite: "none",
         maxAge: guestTokenMaxAge,
     });
+    return;
 });

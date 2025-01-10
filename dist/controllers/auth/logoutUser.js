@@ -26,11 +26,13 @@ const logoutUser = (req, res) => __awaiter(void 0, void 0, void 0, function* () 
     try {
         const refreshToken = req.cookies["refreshToken"];
         if (!refreshToken) {
-            return res.status(400).json({ success: false, message: "No refresh token provided." });
+            res.status(400).json({ success: false, message: "No refresh token provided." });
+            return;
         }
         const decodedRefreshToken = yield auth_1.auth.verifyToken(refreshToken);
         if (!(decodedRefreshToken === null || decodedRefreshToken === void 0 ? void 0 : decodedRefreshToken.sessionId)) {
-            return res.status(400).json({ success: false, message: "Invalid refresh token." });
+            res.status(400).json({ success: false, message: "Invalid refresh token." });
+            return;
         }
         const sessionId = String(decodedRefreshToken.sessionId);
         // Delete the session
@@ -51,11 +53,13 @@ const logoutUser = (req, res) => __awaiter(void 0, void 0, void 0, function* () 
             secure: process.env.NODE_ENV === "production",
             sameSite: "strict",
         });
-        return res.status(200).json({ success: true, message: "User logged out successfully." });
+        res.status(200).json({ success: true, message: "User logged out successfully." });
+        return;
     }
     catch (error) {
         console.error("Error during logout:", error);
-        return res.status(500).json({ success: false, message: "Internal server error during logout." });
+        res.status(500).json({ success: false, message: "Internal server error during logout." });
+        return;
     }
 });
 exports.default = logoutUser;

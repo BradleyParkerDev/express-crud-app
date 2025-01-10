@@ -16,12 +16,11 @@ dotenv.config();
 // Explicit boolean conversion with fallback to false
 const useNeon = process.env.USE_NEON === 'true' || false;
 
-console.log(useNeon);
 const db = useNeon ? neonDb : localDb;
 
 
-
-const rotateRefreshToken = async (req: Request, res: Response, decodedRefreshToken: JWTPayload): Promise<void> => {
+// I want to return a boolean of false if the session does not exist
+const rotateRefreshToken = async (req: Request, res: Response, decodedRefreshToken: JWTPayload): Promise<boolean>=> {
 
     console.log('decodedRefreshToken:', decodedRefreshToken)
 
@@ -32,8 +31,21 @@ const rotateRefreshToken = async (req: Request, res: Response, decodedRefreshTok
     // Get UserSession with sessionId
     const sessionResponse = await db.select().from(UserSession).where(eq(UserSession.sessionId, oldSessionId))
 
-    console.log("\nCurrent UserSession:",sessionResponse[0])
+    // Handle the case where the session does not exist
+    if (!sessionResponse.length) {
+        console.error("Session not found for sessionId:", oldSessionId);
+        console.error("Query result:", sessionResponse);
 
+        // Clear stale cookies
+        res.clearCookie("refreshToken");
+        res.clearCookie("accessToken");
+
+        // Return false to indicate failure
+        return false;
+    }
+
+
+    console.log("\nCurrent UserSession:",sessionResponse[0])
     // Extract old session userId and expirationTime
     const userId = sessionResponse[0].userId
     const newSessionExp = sessionResponse[0].expirationTime
@@ -88,7 +100,9 @@ const rotateRefreshToken = async (req: Request, res: Response, decodedRefreshTok
 
     // Add createdSession info to req.body.decoded
     req.body.decoded.sessionId = createdSession.sessionId;
-    req.body.decoded.userId = createdSession.userId;
+    req.body.decoded.userId = createdSession.userId;        
+
+    return true;
 }
 
 

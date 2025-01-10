@@ -6,7 +6,7 @@ import createError from 'http-errors';
 import indexRouter from './routes/index';
 import authRouter from './routes/auth';
 import imagesRouter from './routes/images';
-import usersRouter from './routes/users';
+import userRouter from './routes/user';
 import { auth } from './lib/auth';
 
 // App Creation
@@ -27,7 +27,7 @@ app.use(auth.handleSessionCookies) // Authorization Middleware
 app.use('/', indexRouter);
 app.use('/api/auth', authRouter);
 app.use('/api/images', imagesRouter);
-app.use('/api/users', usersRouter);
+app.use('/api/user', userRouter);
 
 // Catch 404 and forward to error handler
 app.use((req, res, next) => {

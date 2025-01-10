@@ -7,7 +7,7 @@ import http from 'http';
 
 dotenv.config(); // Add this line to load environment variables
 
-const debug = debugModule('express-generator-example:server');
+const debug = debugModule('express:server');
 
 /**
  * Get port from environment and store in Express.

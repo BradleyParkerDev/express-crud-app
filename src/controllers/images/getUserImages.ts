@@ -5,9 +5,10 @@ import aws from "../../lib/aws"
 // Load environment variables
 dotenv.config()
 
-const deleteUserImage = async (req: Request, res:Response):Promise<void> =>{
+const getUserImages = async (req:Request, res:Response):Promise<void> => {
 
-    return;
+return;
+
 }
 
-export default deleteUserImage;
+export default getUserImages;

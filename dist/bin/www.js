@@ -9,7 +9,7 @@ const app_1 = __importDefault(require("../app"));
 const debug_1 = __importDefault(require("debug"));
 const http_1 = __importDefault(require("http"));
 dotenv_1.default.config(); // Add this line to load environment variables
-const debug = (0, debug_1.default)('express-generator-example:server');
+const debug = (0, debug_1.default)('express:server');
 /**
  * Get port from environment and store in Express.
  */

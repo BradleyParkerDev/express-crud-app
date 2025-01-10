@@ -10,7 +10,7 @@ import dotenv from 'dotenv';
 // Load environment variables
 dotenv.config();
 
-const loginUser = async (req: Request, res: Response) => {
+const loginUser = async (req: Request, res: Response): Promise<void> => {
 
     // Explicit boolean conversion with fallback to false
     const useNeon = process.env.USE_NEON === 'true' || false;
@@ -30,7 +30,8 @@ const loginUser = async (req: Request, res: Response) => {
 
     // If user not found
     if (foundUserArr.length === 0) {
-        return res.status(404).json({ success: false, message: 'Could not find user.' });
+        res.status(404).json({ success: false, message: 'Could not find user.' });
+        return;
     }
 
     const foundUser = foundUserArr[0];
@@ -40,7 +41,8 @@ const loginUser = async (req: Request, res: Response) => {
 
     // If password not valid
     if (!passwordValid) {
-        return res.status(401).json({ success: false, message: 'Password was incorrect.' });
+        res.status(401).json({ success: false, message: 'Password was incorrect.' });
+        return;
     }
 
     // Create session tokens and cookies
@@ -77,7 +79,8 @@ const loginUser = async (req: Request, res: Response) => {
             maxAge: refreshTokenMaxAge, // Time remaining in milliseconds
         });
         
-        return res.status(200).json({success: true, message: "User has successfully logged in!"});
+        res.status(200).json({success: true, message: "User has successfully logged in!"});
+        return;
     }
 
 };

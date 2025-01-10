@@ -1,29 +1,29 @@
 import { Request, Response } from "express";
-import User from "../../database/schemas/Users";
 import UserSession from "../../database/schemas/UserSessions";
 import { eq } from "drizzle-orm";
 import { auth } from "../../lib/auth"
 import { localDb } from "../../database/localDb";
 import { neonDb } from "../../database/neonDb";
 import dotenv from 'dotenv';
-import loginUser from "./loginUser";
 
 // Load environment variables
 dotenv.config();
 
-const logoutUser = async (req: Request, res: Response) => {
+const logoutUser = async (req: Request, res: Response): Promise<void> => {
     const useNeon = process.env.USE_NEON === "true" || false;
     const db = useNeon ? neonDb : localDb;
 
     try {
         const refreshToken = req.cookies["refreshToken"];
         if (!refreshToken) {
-            return res.status(400).json({ success: false, message: "No refresh token provided." });
+            res.status(400).json({ success: false, message: "No refresh token provided." });
+            return;
         }
 
         const decodedRefreshToken = await auth.verifyToken(refreshToken);
         if (!decodedRefreshToken?.sessionId) {
-            return res.status(400).json({ success: false, message: "Invalid refresh token." });
+            res.status(400).json({ success: false, message: "Invalid refresh token." });
+            return;
         }
 
         const sessionId = String(decodedRefreshToken.sessionId);
@@ -50,10 +50,13 @@ const logoutUser = async (req: Request, res: Response) => {
             sameSite: "strict",
         });
 
-        return res.status(200).json({ success: true, message: "User logged out successfully." });
+        res.status(200).json({ success: true, message: "User logged out successfully." });
+        return;
     } catch (error) {
         console.error("Error during logout:", error);
-        return res.status(500).json({ success: false, message: "Internal server error during logout." });
+        res.status(500).json({ success: false, message: "Internal server error during logout." });
+        return;
+
     }
 };
 

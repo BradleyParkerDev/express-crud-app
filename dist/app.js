@@ -11,7 +11,7 @@ const http_errors_1 = __importDefault(require("http-errors"));
 const index_1 = __importDefault(require("./routes/index"));
 const auth_1 = __importDefault(require("./routes/auth"));
 const images_1 = __importDefault(require("./routes/images"));
-const users_1 = __importDefault(require("./routes/users"));
+const user_1 = __importDefault(require("./routes/user"));
 const auth_2 = require("./lib/auth");
 // App Creation
 const app = (0, express_1.default)();
@@ -29,7 +29,7 @@ app.use(auth_2.auth.handleSessionCookies); // Authorization Middleware
 app.use('/', index_1.default);
 app.use('/api/auth', auth_1.default);
 app.use('/api/images', images_1.default);
-app.use('/api/users', users_1.default);
+app.use('/api/user', user_1.default);
 // Catch 404 and forward to error handler
 app.use((req, res, next) => {
     next((0, http_errors_1.default)(404));

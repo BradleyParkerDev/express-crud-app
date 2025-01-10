@@ -16,5 +16,6 @@ const dotenv_1 = __importDefault(require("dotenv"));
 // Load environment variables
 dotenv_1.default.config();
 const deleteUserImage = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    return;
 });
 exports.default = deleteUserImage;

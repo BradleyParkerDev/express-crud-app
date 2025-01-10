@@ -10,9 +10,10 @@ dotenv.config()
 const storage = multer.memoryStorage()
 const upload = multer({ storage: storage })
 
-const uploadUserImage = async (req: Request, res:Response) =>{
+const uploadUserImage = async (req: Request, res:Response):Promise<void> =>{
 
 
+    return;
 }
 
 export default uploadUserImage;

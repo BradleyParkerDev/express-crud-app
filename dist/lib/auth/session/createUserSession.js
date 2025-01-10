@@ -20,7 +20,6 @@ const dotenv_1 = __importDefault(require("dotenv"));
 dotenv_1.default.config();
 // Explicit boolean conversion with fallback to false
 const useNeon = process.env.USE_NEON === 'true' || false;
-console.log(useNeon);
 const db = useNeon ? neonDb_1.neonDb : localDb_1.localDb;
 // Define a function to calculate an expiration time (7 days from now)
 const getExpirationTime = () => {
