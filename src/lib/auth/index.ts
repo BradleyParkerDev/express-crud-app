@@ -1,3 +1,6 @@
+// cron-jobs
+import handleExpiredUserSessionsCron from "./cron-jobs/handleExpiredUserSessionsCron";
+
 // hashing
 import generatePasswordHash from "./hashing/generatePasswordHash";
 
@@ -18,6 +21,8 @@ import validatePassword from "./validation/validatePassword";
 
 
 export const auth = {
+    // cron-jobs
+    handleExpiredUserSessionsCron,
 
     // hashing
     generatePasswordHash,

@@ -24,7 +24,8 @@ const db = useNeon ? neonDb_1.neonDb : localDb_1.localDb;
 // Define a function to calculate an expiration time (7 days from now)
 const getExpirationTime = () => {
     const expirationDate = new Date();
-    expirationDate.setDate(expirationDate.getDate() + 7); // Set expiration time to 7 days from now
+    // expirationDate.setDate(expirationDate.getDate() + 7); // Set expiration time to 7 days from now
+    expirationDate.setMinutes(expirationDate.getMinutes() + 3); // Set expiration time to 3 minutes from now
     return expirationDate;
 };
 ;

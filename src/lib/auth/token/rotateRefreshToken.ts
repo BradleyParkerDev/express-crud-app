@@ -48,7 +48,11 @@ const rotateRefreshToken = async (req: Request, res: Response, decodedRefreshTok
     console.log("\nCurrent UserSession:",sessionResponse[0])
     // Extract old session userId and expirationTime
     const userId = sessionResponse[0].userId
+    
     const newSessionExp = sessionResponse[0].expirationTime
+
+
+
 
     // Create newAuthenticatedUserSession object
     const newAuthenticatedUserSession = {

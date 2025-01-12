@@ -12,6 +12,9 @@ import { auth } from './lib/auth';
 // App Creation
 const app = express();
 
+// Handle expired user sessions
+auth.handleExpiredUserSessionsCron();
+ 
 // Middleware
 app.use(cors({
     origin: 'http://localhost:3000', // React app's URL

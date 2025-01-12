@@ -4,6 +4,8 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.auth = void 0;
+// cron-jobs
+const handleExpiredUserSessionsCron_1 = __importDefault(require("./cron-jobs/handleExpiredUserSessionsCron"));
 // hashing
 const generatePasswordHash_1 = __importDefault(require("./hashing/generatePasswordHash"));
 //  middleware
@@ -18,6 +20,8 @@ const verifyToken_1 = __importDefault(require("./token/verifyToken"));
 // validation
 const validatePassword_1 = __importDefault(require("./validation/validatePassword"));
 exports.auth = {
+    // cron-jobs
+    handleExpiredUserSessionsCron: handleExpiredUserSessionsCron_1.default,
     // hashing
     generatePasswordHash: generatePasswordHash_1.default,
     // middleware

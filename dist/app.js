@@ -15,6 +15,8 @@ const user_1 = __importDefault(require("./routes/user"));
 const auth_2 = require("./lib/auth");
 // App Creation
 const app = (0, express_1.default)();
+// Handle expired user sessions
+auth_2.auth.handleExpiredUserSessionsCron();
 // Middleware
 app.use((0, cors_1.default)({
     origin: 'http://localhost:3000', // React app's URL

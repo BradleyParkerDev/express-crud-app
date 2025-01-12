@@ -13,8 +13,10 @@ export const generateToken = async (userData: UserData, type: 'access' | 'refres
     // Secret key for signing the token
     const jwtSecretKey = new TextEncoder().encode(process.env.JWT_SECRET_KEY!);
 
-    // Calculate expiration time: 2 minutes for access tokens
-    const accessTokenExp = Math.floor(Date.now() / 1000) + 2 * 60; // 2 minutes
+    // Calculate expiration time for access tokens
+    // const accessTokenExp = Math.floor(Date.now() / 1000) + 2 * 60; // 2 minutes
+    const accessTokenExp = Math.floor(Date.now() / 1000) + 30; // 30 seconds
+
     const userSessionExp = Math.floor(userData.expirationTime.getTime() / 1000); // Session expiration in seconds
 
     if (type === 'access') {
