@@ -69,7 +69,9 @@ const loginUser = async (req: Request, res: Response): Promise<void> => {
             httpOnly: true,
             secure: process.env.NODE_ENV === "production",
             sameSite: "strict",
-            maxAge: 2 * 60 * 1000, // 2 minutes
+            // maxAge: 2 * 60 * 1000, // 2 minutes
+            maxAge: 30 * 1000, // 30 seconds
+
         });
         
         res.cookie("refreshToken", refreshToken, {

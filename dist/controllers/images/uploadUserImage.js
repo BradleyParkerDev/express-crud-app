@@ -12,13 +12,11 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const dotenv_1 = __importDefault(require("dotenv"));
-const multer_1 = __importDefault(require("multer"));
-// Load environment variables
-dotenv_1.default.config();
-const storage = multer_1.default.memoryStorage();
-const upload = (0, multer_1.default)({ storage: storage });
+const aws_1 = __importDefault(require("../../lib/aws"));
 const uploadUserImage = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const file = req.file;
+    const response = yield aws_1.default.uploadToS3(file);
+    res.status(200).json({ message: "File successfully uploaded!!!", response: Object.assign({}, response) });
     return;
 });
 exports.default = uploadUserImage;

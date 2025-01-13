@@ -16,21 +16,31 @@ const client_s3_1 = require("@aws-sdk/client-s3");
 const dotenv_1 = __importDefault(require("dotenv"));
 // Load environment variables
 dotenv_1.default.config();
+// AWS
 const bucketName = process.env.AWS_BUCKET_NAME;
-const region = process.env.AWS_BUCKET_REGION;
+const bucketRegion = process.env.AWS_BUCKET_REGION;
 const accessKeyId = process.env.AWS_ACCESS_KEY_ID;
 const secretAccessKey = process.env.AWS_SECRET_ACCESS_KEY;
-const uploadToS3 = (filePath) => __awaiter(void 0, void 0, void 0, function* () {
-    const client = new client_s3_1.S3Client({});
-    const command = new client_s3_1.PutObjectCommand({
+const s3Client = new client_s3_1.S3Client({
+    region: bucketRegion,
+    credentials: {
+        accessKeyId,
+        secretAccessKey
+    }
+});
+const uploadToS3 = (file) => __awaiter(void 0, void 0, void 0, function* () {
+    const params = {
         Bucket: bucketName,
-        Key: secretAccessKey,
-        Body: filePath,
-    });
+        Key: file.originalname,
+        Body: file.buffer,
+        ContentType: file.mimetype,
+    };
+    const command = new client_s3_1.PutObjectCommand(params);
     // AWS recommended code
     try {
-        const response = yield client.send(command);
+        const response = yield s3Client.send(command);
         console.log(response);
+        return response;
     }
     catch (caught) {
         if (caught instanceof client_s3_1.S3ServiceException &&

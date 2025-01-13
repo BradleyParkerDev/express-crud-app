@@ -12,7 +12,7 @@ import { auth } from './lib/auth';
 // App Creation
 const app = express();
 
-// Handle expired user sessions
+// Cron job handles expired user sessions
 auth.handleExpiredUserSessionsCron();
  
 // Middleware

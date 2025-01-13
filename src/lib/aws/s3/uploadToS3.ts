@@ -8,29 +8,36 @@ import dotenv from 'dotenv';
 // Load environment variables
 dotenv.config()
 
-const bucketName = process.env.AWS_BUCKET_NAME
-const region = process.env.AWS_BUCKET_REGION
-const accessKeyId = process.env.AWS_ACCESS_KEY_ID
-const secretAccessKey = process.env.AWS_SECRET_ACCESS_KEY
+// AWS
+const bucketName = process.env.AWS_BUCKET_NAME;
+const bucketRegion = process.env.AWS_BUCKET_REGION;
+const accessKeyId = process.env.AWS_ACCESS_KEY_ID;
+const secretAccessKey = process.env.AWS_SECRET_ACCESS_KEY;
 
+const s3Client = new S3Client({
+	region:bucketRegion,
+	credentials:{
+		accessKeyId,
+		secretAccessKey
+	}
+});
 
+const uploadToS3 = async (file:any) => {
 
-
-
-const uploadToS3 = async (filePath:any) => {
-    const client = new S3Client({});
-    const command = new PutObjectCommand({
+	const params = {
         Bucket: bucketName,
-        Key: secretAccessKey,
-        Body: filePath,
-    });
+        Key: file.originalname,
+        Body: file.buffer,
+        ContentType: file.mimetype,
+	}
 
+    const command = new PutObjectCommand(params);
 
-    
     // AWS recommended code
     try {
-        const response = await client.send(command);
+        const response = await s3Client.send(command);
         console.log(response);
+		return response;
     } catch (caught) {
         if (
           caught instanceof S3ServiceException &&

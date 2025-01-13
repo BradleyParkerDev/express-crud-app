@@ -20,8 +20,10 @@ const getUser = async (req: Request, res: Response): Promise<void> => {
 
         // Ensure req.decoded is set by the authorizeUser middleware
         const userId = req.body.decoded?.userId;
+        console.log(`get-user userId: ${userId}`)
         if (!userId) {
             res.status(400).json({ message: "User ID is missing from request!" });
+            return
         }
 
         const foundUserArr = await db.select().from(User).where(eq(User.userId, userId));
