@@ -144,7 +144,7 @@ const createNewGuestSession = async (res:Response): Promise<void> =>{
     res.cookie("guestToken", guestToken, {
         httpOnly: true,
         secure: process.env.NODE_ENV === "production",
-        sameSite: "none",
+        sameSite: "lax",
         maxAge: guestTokenMaxAge,
     });
 
