@@ -3,11 +3,13 @@ import {
     S3Client,
     S3ServiceException,
   } from "@aws-sdk/client-s3";
-import dotenv from 'dotenv';
+  import { v4 as uuidv4 } from 'uuid';
+  import dotenv from 'dotenv';
 
 // Load environment variables
 dotenv.config()
 
+const appName = process.env.APP_NAME;
 // AWS
 const bucketName = process.env.AWS_BUCKET_NAME;
 const bucketRegion = process.env.AWS_BUCKET_REGION;
@@ -22,11 +24,11 @@ const s3Client = new S3Client({
 	}
 });
 
-const uploadToS3 = async (file:any) => {
+const uploadToS3 = async (file:any, userId?:string) => {
 
 	const params = {
         Bucket: bucketName,
-        Key: file.originalname,
+        Key: `${appName}/userId1/images/${uuidv4()}-${file.originalname}`,
         Body: file.buffer,
         ContentType: file.mimetype,
 	}

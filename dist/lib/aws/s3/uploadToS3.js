@@ -13,9 +13,11 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const client_s3_1 = require("@aws-sdk/client-s3");
+const uuid_1 = require("uuid");
 const dotenv_1 = __importDefault(require("dotenv"));
 // Load environment variables
 dotenv_1.default.config();
+const appName = process.env.APP_NAME;
 // AWS
 const bucketName = process.env.AWS_BUCKET_NAME;
 const bucketRegion = process.env.AWS_BUCKET_REGION;
@@ -28,10 +30,10 @@ const s3Client = new client_s3_1.S3Client({
         secretAccessKey
     }
 });
-const uploadToS3 = (file) => __awaiter(void 0, void 0, void 0, function* () {
+const uploadToS3 = (file, userId) => __awaiter(void 0, void 0, void 0, function* () {
     const params = {
         Bucket: bucketName,
-        Key: file.originalname,
+        Key: `${appName}/userId1/images/${(0, uuid_1.v4)()}-${file.originalname}`,
         Body: file.buffer,
         ContentType: file.mimetype,
     };

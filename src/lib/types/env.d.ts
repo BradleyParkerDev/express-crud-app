@@ -1,6 +1,7 @@
 declare namespace NodeJS {
 	interface ProcessEnv {
 		PORT: string; // Always string in `process.env`
+		APP_NAME:string;
 		NODE_ENV: "development" | "production";
 		USE_NEON: string; // Boolean-like, needs conversion
 		NEON_DATABASE_URL: string;
