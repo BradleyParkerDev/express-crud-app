@@ -1,0 +1,1 @@
+ALTER TABLE "session_cron_jobs" RENAME COLUMN "id" TO "cron_job_id";
