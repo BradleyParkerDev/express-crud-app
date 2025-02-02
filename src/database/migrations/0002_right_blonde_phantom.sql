@@ -1,0 +1,1 @@
+ALTER TABLE "session_cron_jobs" DROP COLUMN "job_name";

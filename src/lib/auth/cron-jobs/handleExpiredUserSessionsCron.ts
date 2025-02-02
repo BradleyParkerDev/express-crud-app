@@ -1,6 +1,6 @@
 import cron from 'node-cron';
 import UserSession from '../../../database/schemas/UserSessions';
-import CronJobs from '../../../database/schemas/CronJobs';
+import SessionCronJobs from '../../../database/schemas/SessionCronJobs';
 import { lt } from 'drizzle-orm';
 import { localDb } from '../../../database/localDb';
 import { neonDb } from '../../../database/neonDb';
@@ -35,8 +35,7 @@ const handleExpiredUserSessionsCron = () => {
             }
 
             // Insert a new entry into the cron_jobs table
-            await db.insert(CronJobs).values({
-                jobName: 'handleExpiredUserSessions',
+            await db.insert(SessionCronJobs).values({
                 lastChecked: now,
                 sessionsDeleted,
             });

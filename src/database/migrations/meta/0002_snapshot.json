@@ -1,47 +1,9 @@
 {
-  "id": "772fb9e6-4410-4faf-947a-ad51a0b7ac91",
-  "prevId": "00000000-0000-0000-0000-000000000000",
+  "id": "913f07a7-5a8b-48ff-a01d-f16b04f91e4f",
+  "prevId": "cbb3e380-9855-4e8e-aace-3f059acefb74",
   "version": "7",
   "dialect": "postgresql",
   "tables": {
-    "public.cron_jobs": {
-      "name": "cron_jobs",
-      "schema": "",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "uuid",
-          "primaryKey": true,
-          "notNull": true,
-          "default": "gen_random_uuid()"
-        },
-        "job_name": {
-          "name": "job_name",
-          "type": "varchar(255)",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "last_checked": {
-          "name": "last_checked",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "sessions_deleted": {
-          "name": "sessions_deleted",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true
-        }
-      },
-      "indexes": {},
-      "foreignKeys": {},
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {},
-      "policies": {},
-      "checkConstraints": {},
-      "isRLSEnabled": false
-    },
     "public.images": {
       "name": "images",
       "schema": "",
@@ -118,6 +80,38 @@
           ]
         }
       },
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.session_cron_jobs": {
+      "name": "session_cron_jobs",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "last_checked": {
+          "name": "last_checked",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "sessions_deleted": {
+          "name": "sessions_deleted",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
       "policies": {},
       "checkConstraints": {},
       "isRLSEnabled": false
